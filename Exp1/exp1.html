@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Experiment 1_r1</title>
+  <title>Experiment 1</title>
   <!-- Load JsPsych -->
   <script src="https://unpkg.com/jspsych@8.3.0"></script>
   <script src="https://unpkg.com/@jspsych/plugin-instructions@2.1.0"></script>
@@ -124,6 +124,11 @@
       border: 1px solid #dbe3ea;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .example-screen .trial-card {
+      width: 100%;
+      max-width: 750px;
     }
   
     .jspsych-instructions-nav {
@@ -959,22 +964,15 @@
     // 4 structural versions per item:
     // subject-LFN / subject-SFN / object-LFN / object-SFN
     function selectFourStructureFamily(filler_type) {
-
       const structures = [
         { qp_position: "subject", negation_form: "LFN" },
         { qp_position: "subject", negation_form: "SFN" },
         { qp_position: "object",  negation_form: "LFN" },
         { qp_position: "object",  negation_form: "SFN" }
       ];
-
       return Array.from({ length: 8 }, (_, index) => {
-
         const item_number = index + 1;
-
-        const rows = getBaseFillerRows(
-          filler_type,
-          item_number
-        );
+        const rows = getBaseFillerRows(filler_type, item_number);
 
         if (rows.length !== 4) {
           throw new Error(
@@ -1159,7 +1157,7 @@
     //   action: "save",
     //   experiment_id: "DpvkvDr9rv2q",
     //   filename: filename,
-    //   data_string: ()=>"\uFEFF" + jsPsych.data.get().csv(),
+    //   data_string: ()=>"\uFEFF" + jsPsych.data.get().ignore(["trial_type", "plugin_version"]).csv(),
     //   wait_message: `
     //     <p>응답을 저장하고 있습니다.</p>
     //     <p>창을 닫지 마시고 잠시만 기다려주세요.</p>
@@ -1174,7 +1172,7 @@
     // ============================================================
 
     function downloadLocalCSV() {
-      const csv = "\uFEFF" + jsPsych.data.get().csv();
+      const csv = "\uFEFF" + jsPsych.data.get().ignore(["trial_type", "plugin_version"]).csv();
       const blob =
         new Blob([csv],
           {type: "text/csv;charset=utf-8;"}
