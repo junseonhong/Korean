@@ -618,6 +618,38 @@
       .event-sequence-box {
         flex-shrink: 0;
       }
+
+      /* 상황 설명 */
+      .event-text {
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      /* 상황의 첫 줄 */
+      .context-line {
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      /* target sentence */
+      .target-sentence {
+        font-size: 17px;
+        line-height: 1.5;
+      }
+
+      /* target box도 조금 더 compact하게 */
+      .target-box,
+      .instruction-example-page .target-box {
+        padding: 12px 16px;
+      }
+
+      .jspsych-content.visual-stage .experiment-image,
+      .jspsych-content.visual-stage .practice-image {
+        width: calc(100% + 24px);
+        max-width: none;
+        margin-left: -12px;
+        margin-right: -12px;
+      }
     }
 
   
