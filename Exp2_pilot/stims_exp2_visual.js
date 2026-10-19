@@ -99,7 +99,7 @@ const BASE_EXP2_VISUAL_STIMULI = [
     subject_critical: "stims/student_break_subject_critical.png"
   },
   {item: 10,
-    object_context: "학생이 이면지와 책을 찢고 있습니다.",
+    object_context: "학생이 이면지와 헌책을 찢고 있습니다.",
     object_sentence: "학생이 모든 책을 찢지 않았다.",
     subject_sentence: "모든 학생이 책을 찢지 않았다.",
     object_ES: "stims/student_tear_object_ES.png",
@@ -110,7 +110,7 @@ const BASE_EXP2_VISUAL_STIMULI = [
     subject_critical: "stims/student_tear_subject_critical.png"
   },
   {item: 11,
-    object_context: "한 선생님이 여러 조명을 켜고 있습니다.",
+    object_context: "선생님이 여러 조명을 켜고 있습니다.",
     object_sentence: "선생님이 모든 스탠드를 켜지 않았다.",
     subject_sentence: "모든 선생님이 스탠드를 켜지 않았다.",
     object_ES: "stims/teacher_light_object_ES.png",
@@ -121,7 +121,7 @@ const BASE_EXP2_VISUAL_STIMULI = [
     subject_critical: "stims/teacher_light_subject_critical.png"
   },
   {item: 12,
-    object_context: "한 웨이터가 여러 잔에 음료를 따르고 있습니다.",
+    object_context: "웨이터가 여러 잔에 음료를 따르고 있습니다.",
     object_sentence: "웨이터가 모든 와인잔을 채우지 않았다.",
     subject_sentence: "모든 웨이터가 와인잔을 채우지 않았다.",
     object_ES: "stims/waiter_fill_object_ES.png",
@@ -149,7 +149,7 @@ const BASE_EXP2_VISUAL_FILLERS = [
         subject_sentence: "모든 경찰이 상자를 열었다."
       }
     ],
-    object_context: "한 경찰이 물건을 열어보고 있습니다.",
+    object_context: "경찰이 여러 물건을 열어보고 있습니다.",
     object_context_ES: "fillers/police_suitcase_object_context_ES.png",
     object_context_EF: "fillers/police_suitcase_object_context_EF.png",
     object_critical_yes: "fillers/police_box_object_critical_y.png",
@@ -207,8 +207,8 @@ const BASE_EXP2_VISUAL_FILLERS = [
     lexical_set: "chef_peel",
     sentence_options: [
       {type: "negative",
-        object_sentence: "요리사가 계란을 하나도 깨지 않았다.",
-        subject_sentence: "한 명의 요리사도 계란을 깨지 않았다."
+        object_sentence: "요리사가 계란을 하나도 까지 않았다.",
+        subject_sentence: "한 명의 요리사도 계란을 까지 않았다."
       }
     ],
     object_context: "요리사가 여러 식재료를 손질하고 있습니다.",
@@ -222,20 +222,20 @@ const BASE_EXP2_VISUAL_FILLERS = [
     subject_critical_no: "fillers/chef_egg_subject_critical_n.png"
   },
 
-  // Filler 5: student - cheers
+  // Filler 5: Doctor - drink
   {item: 5,
-    lexical_set: "doctor_beer",
+    lexical_set: "clerk_box",
     sentence_options: [
       {type: "numeral",
-        object_sentence: "의사가 맥주 세 잔을 마셨다.",
+        object_sentence: "점원이 상자 세 개를 선반에 올려두었다.",
         subject_sentence: "세 명의 의사가 맥주를 마셨다."
       }
     ],
-    object_context:"의사가 술을 마시고 있습니다.",
-    object_context_ES: "fillers/doctor_wine_object_context_ES.png",
-    object_context_EF: "fillers/doctor_wine_object_context_EF.png",
-    object_critical_yes: "fillers/doctor_beer_object_critical_y.png",
-    object_critical_no: "fillers/doctor_beer_object_critical_n.png",
+    object_context:"점원이 선반을 정리하고 있습니다.",
+    object_context_ES: "fillers/clerk_bottle_object_context_ES.png",
+    object_context_EF: "fillers/clerk_bottle_object_context_EF.png",
+    object_critical_yes: "fillers/clerk_box_object_critical_y.png",
+    object_critical_no: "fillers/clerk_box_object_critical_n.png",
     subject_context_ES: "fillers/doctor_wine_subject_context_ES.png",
     subject_context_EF: "fillers/doctor_wine_subject_context_EF.png",
     subject_critical_yes: "fillers/doctor_beer_subject_critical_y.png",
