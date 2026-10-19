@@ -172,7 +172,7 @@ const BASE_EXP2_VISUAL_FILLERS = [
         subject_sentence: "모든 웨이터가 접시를 깼다."
       }
     ],
-    object_context: "웨이터가 더 이상 사용하지 않을 식기를 깨고 있습니다.",
+    object_context: "웨이터가 더 이상 사용하지 않을 식기를 처리하고 있습니다.",
     object_context_ES: "fillers/waiter_mug_object_context_ES.png",
     object_context_EF: "fillers/waiter_mug_object_context_EF.png",
     object_critical_yes: "fillers/waiter_dish_object_critical_y.png",
@@ -207,8 +207,8 @@ const BASE_EXP2_VISUAL_FILLERS = [
     lexical_set: "chef_peel",
     sentence_options: [
       {type: "negative",
-        object_sentence: "요리사가 계란을 하나도 까지 않았다.",
-        subject_sentence: "한 명의 요리사도 계란을 까지 않았다."
+        object_sentence: "요리사가 계란을 하나도 깨지 않았다.",
+        subject_sentence: "한 명의 요리사도 계란을 꺠지 않았다."
       }
     ],
     object_context: "요리사가 여러 식재료를 손질하고 있습니다.",
