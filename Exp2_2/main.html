@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 2</title>
+  <!-- Load JsPsych -->
+  <script src="https://unpkg.com/jspsych@8.3.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-instructions@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-preload@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+  
+  <!-- Load Stimuli -->
+  <script src="stims_exp2.js"></script>
+
+  <link href="https://unpkg.com/jspsych@8.3.0/css/jspsych.css" rel="stylesheet" type="text/css">
+  
+  <!-- Load Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --stimulus-width: 600px;
+      --visual-block-width: 900px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body,
+    .jspsych-content,
+    .jspsych-content-wrapper {
+      touch-action: manipulation;
+    }
+
+    body,
+    .jspsych-content,
+    .jspsych-content-wrapper {
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    body {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f9;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: #2c3e50;
+    }
+
+    p {
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    p,
+    h1,
+    h2,
+    h3,
+    .target-sentence,
+    .trial-question,
+    .picture-description,
+    .context-text-line {
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .jspsych-content-wrapper {
+      width: calc(100% - 40px);
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px 40px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .content {
+      margin-top: 20px;
+    }
+
+    .trial-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      width: 100%;
+      max-width: 900px;
+      min-height: 430px;
+      margin: 0 auto;
+      padding-top: 40px;
+      text-align: center;
+    }
+
+    .jspsych-content.visual-stage .trial-card {
+      height: auto;
+      min-height: 430px;
+      padding-top: 20px;
+    }
+
+    .jspsych-content.linguistic-stage .trial-card {
+      height: 430px;
+    }
+
+    .jspsych-btn {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #64748b;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .jspsych-btn:hover {
+      background-color: #475569;
+    }
+
+    #jspsych-html-button-response-btngroup {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 65px;
+      margin-top: 10px;
+    }
+
+    .example-button-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 55px;
+    }
+
+    .context-block,
+    .critical-block {
+      width: var(--visual-block-width);
+      max-width: 100%;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+
+    .context-display-box {
+      width: var(--visual-block-width);
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 22px 28px;
+      border: 1px solid #dbe3ea;
+      border-radius: 12px;
+    }
+
+    .experiment-image {
+      display: block;
+      width: 100%;
+      max-width: var(--stimulus-width);
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .context-text-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+      height: 200px;
+      margin: 10px auto 0;
+      padding: 12px 16px;
+      background-color: #f8fafc;
+      border-radius: 8px;
+      text-align: justify;
+    }
+
+    .context-text-line {
+      margin: 4px 0;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .hidden-text {
+      visibility: hidden;
+    }
+
+    .judgment-placeholder {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .target-sentence {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    .trial-question {
+      font-size: 19px;
+      font-weight: 500;
+    }
+
+    .target-box {
+      display: inline-block;
+      max-width: 100%;
+      margin: 30px auto 0;
+      padding: 18px 25px;
+      background-color: #eef2f7;
+      border: 1px solid #d5dde5;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .picture-description {
+      margin: 6px 0 0;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .stage1-placeholder,
+    .example-placeholder {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .jspsych-instructions-nav {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .inst-box {
+      padding: 18px;
+      background-color: lemonchiffon;
+      border-radius: 12px;
+    }
+
+    .begin-box {
+      padding: 30px;
+      background-color: #e0f2fe;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .example-screen {
+      width: 800px;
+      max-width: calc(100vw - 40px);
+      margin: 20px auto;
+      padding: 30px;
+      background-color: white;
+      border: 1px solid #dbe3ea;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .instruction-example-image {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      margin: 20px auto;
+    }
+
+    .example-screen .trial-card {
+      width: 100%;
+      max-width: 750px;
+      height: auto;
+      padding-top: 0;
+    }
+
+    .example-screen .event-sequence-box {
+      height: 180px;
+    }
+
+    .example-screen .target-box {
+      margin-top: 15px;
+    }
+
+    .example-screen .trial-question {
+      margin-top: 12px;
+    }
+
+    .instruction-example-page {
+      height: auto;
+      margin-top: 0;
+    }
+
+    .instruction-example-page h3 {
+      margin: 0 0 8px;
+    }
+
+    .instruction-example-page .example-screen {
+      margin: 10px auto;
+      padding: 18px 25px;
+    }
+
+    .instruction-example-page .event-sequence-box {
+      height: 150px;
+    }
+
+    .instruction-example-page .target-box {
+      margin-top: 10px;
+      padding: 12px 20px;
+    }
+
+    .instruction-example-page .trial-question {
+      margin: 8px 0;
+    }
+
+    .instruction-example-page .example-button-area {
+      height: 45px;
+    }
+
+    .instruction-example-page > p:last-child {
+      margin: 4px 0 0;
+    }
+
+    .practice-image {
+      display: block;
+      width: 100%;
+      max-width: var(--stimulus-width);
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .jspsych-content.practice-stage {
+      width: 100%;
+      max-width: 1000px;
+      margin: auto !important;
+    }
+
+    .practice-intro-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 430px;
+    }
+
+    .practice-intro-page .inst-box {
+      width: 100%;
+    }
+
+    .event-sequence-box {
+      display: flex;
+      align-items: center;
+      width: 800px;
+      max-width: 100%;
+      height: 180px;
+      margin: 0 auto;
+      padding: 12px 25px;
+      background-color: #f8fafc;
+      border: 1px solid #dbe3ea;
+      border-radius: 12px;
+      text-align: justify;
+    }
+
+    .event-text {
+      width: 100%;
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.7;
+      text-align: justify;
+    }
+
+    .context-line {
+      display: block;
+      margin-bottom: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .critical-block {
+      margin-top: 12px;
+    }
+
+    .jspsych-content.visual-stage .critical-block {
+      margin-top: 0;
+    }
+
+    .jspsych-content.visual-stage .critical-block .picture-description {
+      margin-top: 0;
+    }
+
+    .jspsych-content.visual-stage .target-box {
+      margin-top: 0;
+    }
+
+    .jspsych-content .consent p {
+      font-size: 16px;
+      line-height: 1.4;
+      text-align: justify;
+    }
+
+    .jspsych-content .consent h3 {
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    input[type="number"] {
+      min-width: 100px;
+      min-height: 44px;
+      background-color: #fff;
+      color: #1f2937;
+      border: 2px solid #dbe3ea;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    input[type="number"]:focus {
+      border-color: #dbe3ea;
+      outline: 3px solid rgba(100, 116, 139, 0.25);
+    }
+
+    .saving-box {
+      padding: 30px;
+      background-color: #ecfdf5;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .saving-box h2 {
+      margin-top: 0;
+      color: #047857;
+    }
+
+    .completion-box {
+      padding: 30px;
+      background-color: #f0fdf4;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .completion-box h2 {
+      margin-top: 0;
+      color: #15803d;
+    }
+
+    #jspsych-progressbar-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      margin: 0;
+      padding: 10px 0;
+      background-color: #f8fafc;
+      z-index: 1000;
+    }
+
+    #jspsych-progressbar-outer {
+      width: 90%;
+      height: 12px;
+      margin: 0 auto;
+      background-color: #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #jspsych-progressbar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #cbd5e1 0%, #94a3b8 50%, #64748b 100%);
+      border-radius: 8px;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.45);
+      transition: width 0.4s ease;
+    }
+
+    .jspsych-display-element {
+      padding-top: 25px !important;
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --stimulus-width: 100%;
+        --visual-block-width: 100%;
+      }
+
+      .jspsych-content-wrapper {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto 50px;
+        padding: 16px 12px;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .jspsych-content,
+      .trial-card,
+      .context-block,
+      .critical-block,
+      .context-display-box,
+      .example-screen {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .trial-card {
+        height: auto;
+        min-height: 430px;
+        padding-top: 16px;
+      }
+
+      .context-display-box {
+        padding: 14px 12px;
+      }
+
+      .experiment-image,
+      .practice-image,
+      .instruction-example-image {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .context-text-container {
+        height: 180px;
+        margin-top: 10px;
+        padding: 10px 12px;
+      }
+
+      .context-text-line {
+        margin: 2px 0;
+        font-size: 16px;
+        line-height: 1.4;
+      }
+
+      .target-sentence {
+        font-size: 17px;
+        line-height: 1.5;
+      }
+
+      .trial-question {
+        font-size: 17px;
+      }
+
+      .picture-description {
+        font-size: 16px;
+      }
+
+      p {
+        font-size: 16px;
+      }
+
+      .jspsych-btn {
+        min-width: 92px;
+        min-height: 44px;
+        padding: 12px 18px;
+        font-size: 16px;
+      }
+
+      #jspsych-html-button-response-btngroup {
+        flex-wrap: wrap;
+      }
+
+      .event-sequence-box {
+        flex-shrink: 0;
+        height: auto;
+        min-height: 180px;
+        padding: 16px 18px;
+      }
+
+      .event-text {
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      .context-line {
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+
+      .target-box,
+      .instruction-example-page .target-box {
+        padding: 12px 16px;
+      }
+
+      .jspsych-content .consent p {
+        font-size: 15px;
+        text-align: justify;
+      }
+
+      input,
+      select,
+      textarea {
+        max-width: 100%;
+      }
+
+      input[type="number"] {
+        min-width: 110px;
+        min-height: 48px;
+      }
+    }
+
+    /* ==========================================
+      RESPONSIVE EXPERIMENT LAYOUT
+      Adjust to participant's screen height
+      ========================================== */
+
+    /* Reduce unnecessary outer spacing */
+    .jspsych-content-wrapper {
+      margin: 8px auto;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+
+    /* Remove fixed trial height */
+    .jspsych-content.visual-stage .trial-card {
+      height: auto;
+      min-height: 0;
+      padding-top: 0;
+    }
+
+    /* Automatically scale image to screen height */
+    .jspsych-content.visual-stage .experiment-image {
+      width: 100%;
+      max-width: var(--stimulus-width);
+      max-height: 40dvh;
+      height: auto;
+      object-fit: contain;
+    }
+
+    /* Reduce padding around image and text */
+    .jspsych-content.visual-stage .context-display-box {
+      padding: 12px 16px;
+    }
+
+    /* Make context text area responsive */
+    .jspsych-content.visual-stage .context-text-container {
+      height: auto;
+      min-height: clamp(110px, 19dvh, 200px);
+      margin-top: 6px;
+      padding: 8px 12px;
+      justify-content: center;
+    }
+
+    /* Scale context text slightly on shorter screens */
+    .jspsych-content.visual-stage .context-text-line {
+      font-size: clamp(15px, 2dvh, 19px);
+      line-height: 1.45;
+      margin: 2px 0;
+    }
+
+    /* Hidden judgment placeholder should not occupy space */
+    .jspsych-content.sequence-stage .judgment-placeholder {
+      display: none;
+    }
+
+    /* Reduce spacing before target sentence */
+    .jspsych-content.judgment-stage .target-sentence {
+      margin-top: 12px !important;
+    }
+
+    /* Reduce spacing around judgment question */
+    .jspsych-content.judgment-stage .trial-question {
+      margin: 8px 0;
+    }
+
+    /* Compact button area */
+    #jspsych-html-button-response-btngroup {
+      min-height: 48px;
+      margin-top: 4px;
+    }
+
+    .jspsych-btn {
+      margin: 5px 8px;
+    }
+
+
+    /* Same overall layout for picture and judgment stages */
+    .jspsych-content.visual-stage {
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100dvh - 120px);
+    }
+
+    /* Let the stimulus area fill the available space */
+    .jspsych-content.visual-stage
+    #jspsych-html-button-response-stimulus {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Remove previously fixed trial heights */
+    .jspsych-content.visual-stage .trial-card {
+      height: auto;
+      min-height: 0;
+      flex: 1;
+      padding-top: 0;
+    }
+
+    /* Keep the buttons at the bottom */
+    .jspsych-content.visual-stage
+    #jspsych-html-button-response-btngroup {
+      flex-shrink: 0;
+      margin-top: auto;
+      min-height: 55px;
+      justify-content: center;
+    }
+
+
+    /* Remove the flexible empty space */
+    .jspsych-content.visual-stage {
+      min-height: 0;
+      display: block;
+    }
+
+    .jspsych-content.visual-stage
+    #jspsych-html-button-response-stimulus {
+      flex: none;
+      display: block;
+    }
+
+    .jspsych-content.visual-stage .trial-card {
+      flex: none;
+      height: auto;
+      min-height: 0;
+      padding-top: 0;
+    }
+
+    /* =====================================
+    SPACING CONTROLS
+    ===================================== */
+
+    :root {
+      --gap-context-target: 20px;
+      --gap-target-question: 20px;
+      --gap-question-buttons: 20px;
+    }
+
+    /* 1. Context box → Target sentence */
+    .jspsych-content.visual-stage .target-sentence {
+      margin: var(--gap-context-target) auto 0 !important;
+    }
+
+    /* 2. Target sentence → Question */
+    .jspsych-content.visual-stage .trial-question {
+      margin: var(--gap-target-question) 0 0 !important;
+    }
+
+    /* 3. Question → Buttons */
+    .jspsych-content.visual-stage
+    #jspsych-html-button-response-btngroup {
+      margin-top: var(--gap-question-buttons) !important;
+      min-height: 55px;
+    }
+
+    /* Keep button positions aligned during picture stages */
+    .jspsych-content.sequence-stage .judgment-placeholder {
+      display: block;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .jspsych-content.visual-stage .context-text-line {
+      font-size: clamp(16px, 2.5dvh, 20px);
+      line-height: 1.5;
+    }
+
+    /* =====================================
+    STABLE VERTICAL POSITIONS
+    ===================================== */
+
+    /* 1. Same context area height across trials */
+    .jspsych-content.visual-stage .context-text-container {
+      height: clamp(180px, 30dvh, 200px) !important;
+      min-height: 0 !important;
+      overflow-y: auto;
+    }
+
+    /* Progress bar: bar on left, n/40 on right */
+    #jspsych-progressbar-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 5px 5px;
+    }
+    /* Progress bar */
+    #jspsych-progressbar-outer {
+      order: 1;
+      flex: 0 1 1300px;
+      width: auto;
+      margin: 0;
+    }
+
+    /* n/40 label */
+    #jspsych-progressbar-container > span {
+      order: 2;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 500;
+      min-width: 85px;
+      text-align: right;
+    }
+
+    /* Instructions shown only during practice picture stages */
+    .jspsych-content.practice-stage .trial-card {
+      position: relative;
+    }
+
+    .jspsych-content.practice-stage .practice-top-note {
+      position: absolute;
+      top: -35px;
+      left: 0;
+      width: 100%;
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.4;
+      text-align: center;
+      color: #000000;
+    }
+  </style>
+
+  </head>
+  <body>
+    <script>
+    let totalItems = 0;
+    const jsPsych = initJsPsych({show_progress_bar: true, auto_update_progress_bar: false,
+      message_progress_bar: progress => `${Math.round(progress * totalItems)}/${totalItems}`});
+    const experiment_start_time = performance.now();
+    const DATAPIPE_EXPERIMENT_ID = "0gKwd3GFsXG5";
+    const subject_id = jsPsych.randomization.randomID(10);
+
+    if (!Array.isArray(window.EXP2_STIMULI) || window.EXP2_STIMULI.length === 0) {throw new Error("EXP2_STIMULI is missing or empty.");}
+
+    // debugging: only PE
+    // const RUN_TYPES = ["PE"];
+    const RUN_TYPES = ["PE", "BASE"]
+
+    // 2 fail lists × 2 negation lists × 2 button orders = 8
+    const assignment_cell = Math.floor(Math.random() * 8);
+
+    const list_number = (assignment_cell % 2) + 1;
+    const response_order = Math.floor(assignment_cell / 2) % 2;
+    const fail_list_number = Math.floor(assignment_cell / 4) + 1;
+
+    const response_buttons =
+      response_order === 0
+        ? ["예", "아니오"]
+        : ["아니오", "예"];
+
+    // LFN / SFN
+    function getNegationForm(index) {
+      return (index + list_number - 1) % 2 === 0
+        ? "LFN"
+        : "SFN";
+    }
+
+    // Group fail1, fail2, fail3 versions by item
+    const itemGroups = new Map();
+
+    window.EXP2_STIMULI
+      .filter(stim => RUN_TYPES.includes(stim.type))
+      .forEach(stim => {
+        const key = `${stim.type}_${stim.item}`;
+        if (!itemGroups.has(key)) {itemGroups.set(key, []);}
+        itemGroups.get(key).push(stim);
+      });
+
+    // Choose one failure version per item
+    const selected_items = [];
+
+    for (const type of RUN_TYPES) {
+      const groups = [...itemGroups.values()]
+        .filter(versions => versions[0].type === type)
+        .sort((a, b) => {
+          const aNum = Number(String(a[0].item).replace(/\D/g, ""));
+          const bNum = Number(String(b[0].item).replace(/\D/g, ""));
+          return aNum - bNum;
+        });
+
+      groups.forEach((versions, index) => {
+        const selected_fail = (Math.floor(index / 2) + fail_list_number - 1) % 2 === 0 ? 2: 3;
+        const stim = versions.find(version => version.fail === selected_fail);
+        if (!stim) {throw new Error(`Missing fail${selected_fail} for ` + `${type} ${versions[0].item}`);}
+        selected_items.push({...stim, negation_form: getNegationForm(index)});
+      });
+    }
+
+    // Shuffle selected items - not allowing 3 consecutive trials
+    function shuffleNoThreeConsecutive(items) {
+      const groups = new Map();
+
+      // Group items by context type AND fail position
+      for (const item of items) {
+        const key = `${item.type}_${item.fail}`;
+
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(item);
+      }
+
+      const keys = [...groups.keys()];
+
+      for (const key of keys) {
+        groups.set(
+          key,
+          jsPsych.randomization.shuffle(groups.get(key))
+        );
+      }
+
+      const result = [];
+      const impossible = new Set();
+
+      function arrange(lastType = null, lastFail = null, count = 0) {
+        if (result.length === items.length) return true;
+
+        const state = [
+          ...keys.map(key => groups.get(key).length),
+          lastType,
+          lastFail,
+          count
+        ].join("|");
+
+        if (impossible.has(state)) return false;
+
+        const candidates = jsPsych.randomization.shuffle(
+          keys.filter(key => {
+            const group = groups.get(key);
+            if (group.length === 0) return false;
+
+            const next = group[group.length - 1];
+
+            // Rule 1: No three consecutive PE or BASE
+            if (next.type === lastType && count >= 2) {
+              return false;
+            }
+
+            // Rule 2: Same context cannot repeat same fail
+            if (
+              next.type === lastType &&
+              next.fail === lastFail
+            ) {
+              return false;
+            }
+
+            return true;
+          })
+        );
+
+        for (const key of candidates) {
+          const next = groups.get(key).pop();
+          result.push(next);
+
+          const nextCount =
+            next.type === lastType ? count + 1 : 1;
+
+          if (arrange(next.type, next.fail, nextCount)) {
+            return true;
+          }
+
+          result.pop();
+          groups.get(key).push(next);
+        }
+
+        impossible.add(state);
+        return false;
+      }
+
+      if (!arrange()) {
+        throw new Error(
+          "Cannot arrange items with the current constraints."
+        );
+      }
+
+      return result;
+    }
+
+    const experimental_items =
+      shuffleNoThreeConsecutive(selected_items);
+    
+    totalItems = experimental_items.length;
+
+
+    jsPsych.data.addProperties({
+      subject_id: subject_id,
+      experiment: "Exp2",
+      assignment_cell: assignment_cell,
+      list_number: list_number,
+      yes_no_order: response_buttons.join("|"),
+      fail_list_number: fail_list_number
+    });
+
+    const timeline = [];
+
+    // Preload
+    const image_files = [...new Set(
+      window.EXP2_STIMULI.flatMap(item => [
+        item.stage0_image,
+        item.stage1_image,
+        item.stage2_image,
+        item.stage3_image,
+        item.critical1_image,
+        item.critical2_image,
+        item.critical3_image
+      ])
+    )];
+
+    timeline.push({type: jsPsychPreload, images: image_files});
+
+    //Consent
+    const consent = {
+      type: jsPsychHtmlButtonResponse,
+      record_data: false,
+      stimulus: `
+        <div class="consent">
+          <h2 style="text-align:center;">연구 참여 안내 및 동의</h2>
+          <h3 style="text-align:center;">언어 이해 및 해석에 관한 행동 연구</h3>
+          <p style="text-align:center;"><strong>연구 개요</strong></p>
+          <p>
+            본 연구는 사람들이 문장을 어떻게 이해하고 해석하는지 알아보기 위한 연구입니다.
+            연구에 참여하시면 문장과 그림과 확인하고, 관련된 여러 문장들에 대해 판단하게 됩니다.
+            연구 참여는 자발적이며, 원하실 경우 언제든지 참여를 중단하실 수 있습니다.
+            연구에 참여하지 않거나 참여 도중 중단하더라도 어떠한 불이익도 없습니다.
+          </p>
+          <p style="text-align:center;"><strong>소요 시간</strong></p>
+            <p>약 30분이 소요될 예정입니다.</p>
+          <p style="text-align:center;"><strong>참여 보상</strong></p>
+          <p>
+            연구 참여에 대한 보상으로 10,000원을 지급해 드립니다.
+            실험 종료 후, 보상 지급을 위해 계좌 정보 및 연락처를 수집할 예정입니다.
+            해당 정보는 보상 지급 이외의 용도로 사용되지 않으며, 목적 달성 후 즉시 폐기됩니다.
+          </p>
+          <p style="text-align:center;"><strong>개인정보 및 비밀유지</strong></p>
+          <p>
+            본 연구 참여로 예상되는 위험은 일상생활에서 겪는 수준을 넘지 않습니다.
+            연구 과정에서 수집된 응답과 성별, 나이 등의 정보는 참여자를 식별할 수 없도록 처리하고 관련 규정에 따라 보호합니다.
+            연구 결과를 바탕으로 작성되는 보고서나 논문 등에는 개인을 식별할 수 있는 정보가 포함되지 않습니다.
+          </p>
+          <p style="text-align:center;"><strong>연구 관련 문의:</strong></p>
+          <p>
+            연구 내용이나 절차, 연구 참여로 인한 위험 및 이점에 대한 질문, 혹은 연구와 관련된 우려 또는 불만 사항이 있는 경우
+            연구책임자 홍준선 (junseonh@stanford.edu, +1-650-509-2164, 010-7227-3912)에게 연락하시기 바랍니다.
+          </p>
+          <h3>연구 참여에 동의하시는 경우, 아래의 “동의하고 계속”을 클릭해 주십시오. 동의하지 않으시는 경우에는 창을 닫으시면 됩니다.</h3>
+        </div>
+      `,
+      choices: ["동의하고 계속"]
+    };
+
+    timeline.push(consent);
+
+    // Eligibility
+    let eligibility_passed = false;
+    let retry_eligibility = false;
+
+    const eligibility_check = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: `
+        <div style="max-width:700px; margin:auto; text-align:center;">
+          <h3>연구 참여에 동의해 주셔서 감사합니다.</h3>
+          <h3>본 연구는 만 18세 이상이며 한국어를 모국어로 사용하는 분을 대상으로 합니다.</h3>
+        </div>
+      `,
+      html: `
+        <div style="max-width:700px; margin:auto;">
+          <div style="margin:30px 0;">
+            <p style="text-align:center;"><strong>1. 만 18세 이상이신가요?</strong></p>
+            <div style="text-align:center;">
+              <label style="margin-right:25px;"><input type="radio" name="age_18" value="yes" required> 예</label>
+              <label><input type="radio" name="age_18" value="no"> 아니요</label>
+            </div>
+          </div>
+          <div style="margin:30px 0;">
+            <p style="text-align:center;"><strong>2. 어린 시절부터 한국어를 자연스럽게 습득하셨나요?</strong></p>
+            <div style="text-align:center;">
+              <label style="margin-right:25px;"><input type="radio" name="native_korean" value="yes" required> 예</label>
+              <label><input type="radio" name="native_korean" value="no"> 아니요</label>
+            </div>
+          </div>
+        </div>
+      `,
+      button_label: "계속",
+      data: {phase: "eligibility"},
+      on_finish: function(data) {
+        eligibility_passed = data.response.age_18 === "yes" && data.response.native_korean === "yes";
+        retry_eligibility = false;
+      }
+    };
+    const eligibility_failed_trial = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
+        <div class="completion-box">
+          <p>죄송하지만 본 연구의 참여 조건에 해당하지 않습니다.</p>
+          <p>응답을 잘못 선택하셨다면 <strong>“다시 확인하기”</strong>를 클릭해 주세요.</p>
+          <p>관심을 가져주셔서 감사합니다.</p>
+        </div>
+      `,
+      choices: ["다시 확인하기", "실험 종료"],
+      on_finish: function(data) {
+        if (data.response === 0) {
+          retry_eligibility = true;
+        } else {
+          jsPsych.abortExperiment(`
+            <div class="completion-box">
+              <p>연구에 관심을 가져주셔서 감사합니다.</p>
+              <p>이제 창을 닫으셔도 됩니다.</p>
+            </div>
+          `);
+        }
+      }
+    };
+
+    const eligibility_failed = {
+      timeline: [eligibility_failed_trial],
+      conditional_function: function() {return !eligibility_passed;}
+    };
+
+    const eligibility_loop = {
+      timeline: [eligibility_check, eligibility_failed],
+      loop_function: function() {return retry_eligibility;}
+    };
+
+    timeline.push(eligibility_loop);
+
+    // Demographics
+    const demographics = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: `
+        <div style="max-width:700px; margin:auto; text-align:center;">
+          <h3>실험에 앞서 연구 결과 분석을 위한 몇 가지 기본 정보를 입력해 주세요.<br>해당 정보는 개인을 식별할 수 없도록 처리됩니다.</h3>
+        </div>
+      `,
+      html: `
+        <div style="max-width:700px; margin:auto;">
+          <div style="margin:30px 0; text-align:center;">
+            <p><strong>1. 만 나이를 입력해 주세요.</strong></p>
+            <input type="number" name="age" min="18" max="120" required style="width:80px;padding:8px;font-size:16px;text-align:center;">
+          </div>
+          <div style="margin:30px 0; text-align:center;">
+            <p><strong>2. 성별을 선택해 주세요.</strong></p>
+            <label style="margin-right:20px;"><input type="radio" name="gender" value="male" required> 남성</label>
+            <label style="margin-right:20px;"><input type="radio" name="gender" value="female"> 여성</label>
+            <label style="margin-right:20px;"><input type="radio" name="gender" value="other"> 기타</label>
+            <label><input type="radio" name="gender" value="prefer_not_to_say"> 밝히고 싶지 않음</label>
+          </div>
+        </div>
+      `,
+      button_label: "계속",
+      data: {phase: "demographics"},
+      on_finish: function(data) {
+        data.age = parseInt(data.response.age, 10);
+        data.gender = data.response.gender;
+      }
+    };
+
+    timeline.push(demographics);
+
+    // Instructions
+    const instructions = {
+      type: jsPsychInstructions,
+      record_data: false,
+      pages: [`
+        <div class="content">
+          <h2>실험에 참여해 주셔서 감사합니다!</h2>
+          <div class="inst-box">
+            <h3>실험 진행 방식에 대해 안내해 드리겠습니다: </h3>
+            <p>
+             이 실험은 문장과 그림을 통해 제시되는 내용을 확인하고, 이후 주어지는 문장이 참인지 거짓인지 판단하는 실험입니다.
+            </p>
+            <p>
+              문장과 그림은 총 7단계에 걸쳐 차례대로 제시됩니다. <br> 각 단계마다 <strong>새로운 문장이 추가</strong>되며, 그림에는 그때까지 <strong>진행된 상황이 반영</strong>됩니다.
+            </p>
+            <p>
+              7단계가 끝나면 앞에서 본 내용과 관련된 문장들이 하나씩 제시됩니다. <br> 각 문장이 주어진 상황에서 참인지 판단해 주시면 됩니다.
+            </p>
+            <p>
+              먼저 다음 화면에서 예시 두 개를 보여드리겠습니다. 예시에서 선택하는 응답은 기록되지 않습니다.
+            </p>
+          </div>
+          <p>
+            본 실험은 컴퓨터 환경에 최적화되어 있습니다. 원활한 실험 진행을 위해 컴퓨터 이용을 권장합니다.
+          </p>
+        </div>
+      `],
+      show_clickable_nav: true,
+      button_label_next: "다음",
+      button_label_previous: "이전"
+    };
+
+    timeline.push(instructions);
+
+    // // Start
+    // timeline.push({
+    //   type: jsPsychHtmlButtonResponse,
+    //   record_data: false,
+    //   stimulus: `
+    //     <div class="trial-card">
+    //       <h2>이제 실험을 시작하겠습니다.</h2>
+    //       <div class="begin-box">
+    //         <p>각 화면의 그림과 설명을 확인한 후 <strong>“다음”</strong>을 클릭해 주세요.</p>
+    //         <p>준비가 되시면 아래의 <strong>시작</strong> 버튼을 클릭해 주세요.</p>
+    //       </div>
+    //     </div>
+    //   `,
+    //   choices: ["시작"]
+    // });
+
+    // Sequential stage
+    function makeStageTrial(item, stage_index, trial_order) {
+      const images = [
+        item.stage0_image,
+        item.stage1_image,
+        item.stage2_image,
+        item.stage3_image,
+        item.critical1_image,
+        item.critical2_image,
+        item.critical3_image
+      ];
+
+      const stage_names = [
+        "stage0",
+        "stage1",
+        "stage2",
+        "stage3",
+        "critical1",
+        "critical2",
+        "critical3"
+      ];
+
+      const line1 = `
+        <span class="${stage_index >= 0 ? "" : "hidden-text"}">${item.stage0_sentence}</span>
+      `;
+
+      const line2 = `
+        <span class="${stage_index >= 1 ? "" : "hidden-text"}">${item.stage1_sentence} </span>
+        <span class="${stage_index >= 2 ? "" : "hidden-text"}">${item.stage2_sentence} </span>
+        <span class="${stage_index >= 3 ? "" : "hidden-text"}">${item.stage3_sentence}</span>
+      `;
+
+      const line3 = `
+        <span class="${stage_index >= 4 ? "" : "hidden-text"}">${item.critical1_sentence} </span>
+        <span class="${stage_index >= 5 ? "" : "hidden-text"}">${item.critical2_sentence} </span>
+        <span class="${stage_index >= 6 ? "" : "hidden-text"}">${item.critical3_sentence}</span>
+      `;
+
+      return {
+        type: jsPsychHtmlButtonResponse,
+        save_trial_parameters: {stimulus: false},
+        stimulus: `
+        <div class="trial-card">
+          <div class="context-display-box">
+            <div class="context-text-container">
+              <p class="context-text-line">${line1}</p>
+              <p class="context-text-line">${line2}</p>
+              <p class="context-text-line">${line3}</p>
+            </div>
+            <img class="experiment-image" src="${images[stage_index]}">
+          </div>
+          <div class="judgment-placeholder">
+            <p class="target-sentence" style="margin-top:30px;">
+              ${item[item.negation_form]}
+            </p>
+            <p class="trial-question">
+              위 상황에서 이 문장은 참인가요?
+            </p>
+          </div>
+        </div>
+      `,
+        choices: ["다음"],
+        css_classes: ["experiment-stage", "visual-stage", "sequence-stage"],
+        data: {
+          item: item.item,
+          item_type: "target",
+          trial_order: trial_order,
+          stage_order: stage_index,
+          trial_stage: stage_names[stage_index],
+          negation_form: item.negation_form,
+          image: images[stage_index],
+          context_type: item.type,
+          fail_position: item.fail,
+        }
+      };
+    }
+
+    // Final judgment
+    function makeJudgmentTrial(item, judgment, trial_order, judgment_order) {
+      return {
+        type: jsPsychHtmlButtonResponse,
+        save_trial_parameters: {stimulus: false},
+        stimulus: `
+          <div class="trial-card">
+            <div class="context-display-box">
+              <div class="context-text-container">
+                <p class="context-text-line">${item.stage0_sentence}</p>
+                <p class="context-text-line">${item.stage1_sentence} ${item.stage2_sentence} ${item.stage3_sentence}</p>
+                <p class="context-text-line">${item.critical1_sentence} ${item.critical2_sentence} ${item.critical3_sentence}</p>
+              </div>
+              <img class="experiment-image" src="${item.critical3_image}">
+            </div>
+            <p class="target-sentence" style="margin-top:30px;">
+              ${judgment.sentence}
+            </p>
+            <p class="trial-question">
+              위 상황에서 이 문장은 참인가요?
+            </p>
+          </div>
+        `,
+        choices: response_buttons,
+        css_classes: ["experiment-stage", "visual-stage", "judgment-stage"],
+        data: {
+          item: item.item,
+          item_type: judgment.type,
+          filler_type: judgment.filler_type,
+          filler_pattern: judgment.filler_pattern,
+          filler_answer_condition: judgment.answer_condition,
+          trial_order: trial_order,
+          judgment_order: judgment_order,
+          trial_stage: "judgment",
+          negation_form: judgment.negation_form,
+          sentence: judgment.sentence,
+          final_image: item.critical3_image,
+          correct_response: judgment.correct_response,
+          context_type: item.type,
+          fail_position: item.fail,
+        },
+        on_finish: function(data) {
+          const selected_label = response_buttons[data.response];
+          data.response_label = selected_label;
+          data.response_binary = selected_label === "예" ? "yes" : "no";
+
+          if (data.item_type === "filler") {data.correct = selected_label === data.correct_response;} 
+          else {data.correct = null;}
+
+          // Update progress after all 3 judgments are completed
+          if (judgment_order === 3) {
+            jsPsych.progressBar.progress =
+              trial_order / experimental_items.length;
+          }
+        }
+      };
+    }
+
+    // Add all experiment items
+    
+    // Select the appropriate filler field.
+    function getFillerKey(item, fillerType, answer) {
+      // F1 is affirmative, so it has no LFN/SFN distinction.
+      if (fillerType === "f1") {return `f1_${answer}`;}
+      // F2/F3: use the same negation form as the target.
+      const formKey = `${fillerType}_${item.negation_form}_${answer}`;
+      if (typeof item[formKey] === "string") {return formKey;}
+      // Allow affirmative F2 with a shared field name.
+      if (fillerType === "f2") {const commonKey = `f2_${answer}`;
+        if (typeof item[commonKey] === "string") {
+          if (/않|(?:^|\s)안\s|못\s/.test(item[commonKey])) {throw new Error(`${item.item}: ${commonKey} is negative. ` + `Use ${formKey} instead.`);}
+          return commonKey;
+        }
+      }
+      throw new Error(`Missing filler: ${item.item}, fail${item.fail}, ${formKey}`);
+    }
+
+    // Add all experiment items
+    function addExperimentItem(item, trial_order) {
+      // Seven picture/context stages
+      for (let stage_index = 0; stage_index < 7; stage_index++) {timeline.push(makeStageTrial(item, stage_index, trial_order));}
+      // Randomly choose F1-F3 or F1-F2 filler types.
+      const selectedTypes = ["f1", jsPsych.randomization.shuffle(["f2", "f3"])[0]];
+      // One correct Yes, one correct No.
+      const selectedAnswers = jsPsych.randomization.shuffle(["y", "n"]);
+      const fillerJudgments = selectedTypes.map((fillerType, index) => {
+          const answer = selectedAnswers[index];
+          const key = getFillerKey(item, fillerType, answer);
+          const expectedResponse = answer === "y" ? "예" : "아니오";
+          if (typeof item[key] !== "string" ||item[`${key}_correct`] !== expectedResponse) {
+            throw new Error(`Invalid filler: ${item.item} fail${item.fail} ${key}`);
+          }
+          return {
+            type: "filler",
+            filler_type: fillerType,
+            answer_condition: answer,
+            negation_form:
+              key.startsWith(`${fillerType}_${item.negation_form}_`)
+                ? item.negation_form
+                : null,
+            sentence: item[key],
+            correct_response: item[`${key}_correct`]
+          };
+        }
+      );
+      // Record which filler combination was chosen.
+      const fillerPattern = fillerJudgments.map(f => `${f.filler_type}_${f.answer_condition}`).join("|");
+      const judgments = [
+        {
+          type: "target",
+          filler_type: null,
+          answer_condition: null,
+          negation_form: item.negation_form,
+          sentence: item[item.negation_form],
+          correct_response: null,
+          filler_pattern: fillerPattern
+        },
+        ...fillerJudgments.map(f => ({
+          ...f,
+          filler_pattern: fillerPattern
+        }))
+      ];
+      // Randomize target and filler presentation order.
+      const randomized_judgments = jsPsych.randomization.shuffle(judgments);
+      randomized_judgments.forEach((judgment, index) => {
+        timeline.push(makeJudgmentTrial(item, judgment, trial_order, index + 1)
+        );
+      });
+    }
+
+    // Practice
+    // Practice Trials
+    const practiceExample = {
+      images: [
+        "stims/PRACTICE/practice_classroom_0.png",
+        "stims/PRACTICE/practice_classroom_1.png",
+        "stims/PRACTICE/practice_classroom_2.png",
+        "stims/PRACTICE/practice_classroom_3.png",
+        "stims/PRACTICE/practice_classroom_4.png",
+        "stims/PRACTICE/practice_classroom_5.png",
+        "stims/PRACTICE/practice_classroom_6.png"
+      ],
+      sentences: [
+        "선생님이 교실을 정리하기 시작했다.",
+        "먼저 칠판을 닦았고,",
+        "이어서 창문을 닫았으며,",
+        "책을 책장에 꽂았다.",
+        "그리고 전등을 끄고,",
+        "의자를 책상 아래에 넣었지만,",
+        "교실 문은 닫지 않았다."
+      ]
+    };
+    const practiceExample2 = {
+      images: [
+        "stims/PRACTICE/practice_mail_0.png",
+        "stims/PRACTICE/practice_mail_1.png",
+        "stims/PRACTICE/practice_mail_2.png",
+        "stims/PRACTICE/practice_mail_3.png",
+        "stims/PRACTICE/practice_mail_4.png",
+        "stims/PRACTICE/practice_mail_5.png",
+        "stims/PRACTICE/practice_mail_6.png"
+      ],
+      sentences: [
+        "우체국 직원이 접수된 편지 세 통과 택배 세 개를 발송할 준비를 하고 있다.",
+        "먼저 첫 번째 편지 봉투에 우표를 붙였고,",
+        "이어서 두 번째 편지 봉투에도 우표를 붙였지만,",
+        "세 번째 편지 봉투에는 우표를 붙이지 않았다.",
+        "다음으로 첫 번째 택배 박스에 배송 스티커를 붙였고,",
+        "두 번째 택배 박스에는 배송 스티커를 붙이지 않았지만,",
+        "세 번째 택배 박스에는 배송 스티커를 붙였다."
+      ]
+    };
+
+    const practiceConfigs = [
+      {
+        id: "practice_classroom",
+        example: practiceExample,
+        judgments: [
+          "선생님이 창문을 닫았다.",
+          "선생님이 전등을 안 껐다."
+        ]
+      },
+      {
+        id: "practice_mail",
+        example: practiceExample2,
+        judgments: [
+          "우체국 직원이 세 번째 편지 봉투에 우표를 붙였다.",
+          "우체국 직원이 두 번째 택배 박스에 배송 스티커를 붙이지 않았다."
+        ]
+      }
+    ];
+
+    const practiceTimeline = [];
+      let repeatPractice = false;
+
+    practiceConfigs.forEach((practice) => {
+      const example = practice.example;
+      const practiceItem = {
+        item: practice.id,
+        type: "PRACTICE",
+        fail: null,
+        negation_form: "LFN",
+        LFN: practice.judgments[0],
+        stage0_image: example.images[0],
+        stage1_image: example.images[1],
+        stage2_image: example.images[2],
+        stage3_image: example.images[3],
+        critical1_image: example.images[4],
+        critical2_image: example.images[5],
+        critical3_image: example.images[6],
+        stage0_sentence: example.sentences[0],
+        stage1_sentence: example.sentences[1],
+        stage2_sentence: example.sentences[2],
+        stage3_sentence: example.sentences[3],
+        critical1_sentence: example.sentences[4],
+        critical2_sentence: example.sentences[5],
+        critical3_sentence: example.sentences[6]
+      };
+      // Preload images
+      practiceTimeline.push({
+        type: jsPsychPreload,
+        images: example.images,
+        record_data: false
+      });
+      // Seven picture/context stages
+      for (let stage = 0; stage < 7; stage++) {
+        const trial = makeStageTrial(practiceItem, stage, 0);
+        trial.record_data = false;
+        trial.data = {
+          phase: "practice",
+          practice_item: practice.id
+        };
+        trial.css_classes = [...trial.css_classes, "practice-stage"];
+        trial.stimulus = trial.stimulus.replace(
+          '<div class="trial-card">',
+          `<div class="trial-card">
+            <p class="practice-top-note">
+              아래의 상황 설명을 읽고, 그림을 확인한 후
+              <strong>“다음”</strong>을 클릭해 주세요.
+            </p>`
+        );
+        practiceTimeline.push(trial);
+      }
+
+      // Two judgments
+      practice.judgments.forEach((sentence, index) => {
+        const trial = makeJudgmentTrial(
+          practiceItem,
+          {
+            type: "filler",
+            filler_type: "practice",
+            filler_pattern: null,
+            answer_condition: null,
+            negation_form: null,
+            sentence: sentence,
+            correct_response: null
+          },
+          0,
+          index + 1
+        );
+        trial.record_data = false;
+        trial.data = {
+          phase: "practice",
+          practice_item: practice.id
+        };
+        trial.css_classes = [...trial.css_classes, "practice-stage"
+        ];
+        trial.stimulus = trial.stimulus.replace(
+          '<div class="trial-card">',
+          `<div class="trial-card">
+            <p class="practice-top-note">
+              아래 문장이 주어진 상황에서 참이면
+              <strong>“예”</strong>, 아니면
+              <strong>“아니오”</strong>를 클릭해 주세요.
+            </p>`
+        );
+        // No feedback or progress update
+        trial.on_finish = undefined;
+
+        practiceTimeline.push(trial);
+      });
+    });
+    const experiment_start = {
+      type: jsPsychHtmlButtonResponse,
+      record_data: true,
+      stimulus: `
+        <div class="trial-card">
+          <h2>이제 본 실험을 시작하겠습니다</h2>
+          <div class="begin-box">
+            <p>
+              본 실험에서도 예시와 동일하게
+              그림과 상황 설명이 차례대로 제시됩니다.
+            </p>
+            <p>
+              각 상황을 보고 문장이 주어진 상황에서 참인지 판단하여
+              <strong>“예”</strong> 또는
+              <strong>“아니오”</strong>를 선택해 주세요.
+            </p>
+            <p> 
+              문장의 표현이 자연스러운지보다, 그 문장이 주어진 상황에서 참인지를 기준으로 판단해 주세요.
+            </p>
+            <p>
+              준비가 되셨다면 아래의
+              <strong>“실험 시작”</strong> 버튼을 클릭해 주세요. <br> 예시를 다시 확인하고 싶으시면 <strong>"다시 확인"</strong> 버튼을 클릭해주세요.
+            </p>
+          </div>
+          <p>
+            <strong> 실험 시작 후에는 응답이 기록됩니다.</strong>
+          </p>
+        </div>
+      `,
+      choices: ["다시 확인", "실험 시작"],
+      on_finish: function(data) {repeatPractice = (data.response === 0);}
+    };
+
+    practiceTimeline.push(experiment_start);
+      timeline.push({
+        timeline: practiceTimeline,
+        loop_function: function() {
+          const shouldRepeat = repeatPractice;
+          repeatPractice = false;
+          return shouldRepeat;
+        }
+    });
+
+
+
+    experimental_items.forEach((item, index) => {addExperimentItem(item, index + 1);});
+
+    // DEBUG: SUMMARY TABLE
+    // const DEBUG_MODE = true;
+    // if (DEBUG_MODE) {
+    //   const debugRows = experimental_items.map((item, i) => {
+    //     const judgments = timeline
+    //       .filter(t => t.data?.trial_order === i + 1 && t.data?.trial_stage === "judgment")
+    //       .sort((a, b) => a.data.judgment_order - b.data.judgment_order);
+    //     const fillerTrials = judgments.filter(t => t.data.item_type === "filler");
+    //     const consecutive =
+    //       i > 0 && experimental_items[i - 1].type === item.type
+    //         ? (i > 1 && experimental_items[i - 2].type === item.type ? 3 : 2): 1;
+    //     return {
+    //       order: i + 1,
+    //       context: item.type,
+    //       item: item.item,
+    //       fail: item.fail,
+    //       negation: item.negation_form,
+    //       fillers: fillerTrials.map(t => `${t.data.filler_type.toUpperCase()}(${t.data.filler_answer_condition})`).join(" + "),
+    //       judgmentOrder: judgments.map(t => t.data.item_type === "target"
+    //           ? "Target"
+    //           : `${t.data.filler_type.toUpperCase()}(${t.data.filler_answer_condition})`).join(" → "),
+    //       consecutive: consecutive
+    //     };
+    //   });
+    //   // Also display in browser developer console
+    //   console.table(debugRows);
+    //   const tableRows = debugRows.map(row => `
+    //     <tr style="background:${row.consecutive >= 3 ? "#fee2e2" : "white"};">
+    //       <td>${row.order}</td>
+    //       <td>${row.context}</td>
+    //       <td>${row.item}</td>
+    //       <td>${row.fail}</td>
+    //       <td>${row.negation}</td>
+    //       <td>${row.fillers}</td>
+    //       <td>${row.judgmentOrder}</td>
+    //       <td>${row.consecutive >= 3 ? "⚠ 3연속" : row.consecutive}</td>
+    //     </tr>
+    //   `).join("");
+    //   const debugTrial = {
+    //     type: jsPsychHtmlButtonResponse,
+    //     record_data: false,
+    //     stimulus: `
+    //       <div style="max-width:1100px;margin:auto;text-align:center;">
+    //         <h2>DEBUG: Experiment Randomization</h2>
+    //         <p>
+    //           Total: ${debugRows.length} items |
+    //           PE: ${debugRows.filter(r => r.context === "PE").length} |
+    //           BASE: ${debugRows.filter(r => r.context === "BASE").length}
+    //         </p>
+    //         <div style="max-height:65vh;overflow:auto;">
+    //           <table style=" width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
+    //             <thead style="background:#e2e8f0;">
+    //               <tr>
+    //                 <th>Order</th>
+    //                 <th>Context</th>
+    //                 <th>Item</th>
+    //                 <th>Fail</th>
+    //                 <th>Negation</th>
+    //                 <th>Fillers</th>
+    //                 <th>Judgment Order</th>
+    //                 <th>Consecutive</th>
+    //               </tr>
+    //             </thead>
+    //             <tbody>${tableRows}</tbody>
+    //           </table>
+    //         </div>
+    //       </div>
+    //     `,
+    //     choices: ["실험 시작"]
+    //   };
+    //   // Insert after image preloading, before the experiment
+    //   timeline.splice(1, 0, debugTrial);
+    // }
+
+    // Experiment end
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "",
+      choices: "NO_KEYS",
+      trial_duration: 1,
+      data: {phase: "experiment_end"},
+      on_finish: function(data) {
+        data.total_experiment_time_ms = performance.now() - experiment_start_time;
+        data.total_experiment_time_min = data.total_experiment_time_ms / 60000;
+      }
+    });
+
+    // Payment
+    const payment_contact = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: `
+        <div style="max-width:900px; margin:auto; text-align:center;">
+          <h3>사례비 지급을 위한 계좌 정보</h3>
+          <p>연구 참여 사례비를 보내드리기 위해 계좌 정보를 수집하고 있습니다. 아래에 정보를 입력해 주세요.</p>
+        </div>
+      `,
+      html: `
+        <div style="max-width:700px; margin:30px auto; text-align:center;">
+          <p><strong>예금주명</strong></p>
+          <input type="text" name="account_holder" placeholder="홍길동" required style="width:200px;padding:10px;font-size:18px;text-align:center;">
+
+          <p><strong>은행</strong></p>
+          <input type="text" name="bank_name" placeholder="우리" required style="width:200px;padding:10px;font-size:18px;text-align:center;">
+
+          <p><strong>계좌번호</strong></p>
+          <input type="text" name="account_number" placeholder="1002-012-567890" required style="width:220px;padding:10px;font-size:18px;text-align:center;">
+
+          <p><strong>연락처</strong></p>
+          <input type="text" name="contact" placeholder="010-1234-5678" required style="width:220px;padding:10px;font-size:18px;text-align:center;">
+
+          <p style="font-size:15px; color:#64748b;">
+            입력하신 정보는 사례비 지급 외의 용도로 사용되지 않으며, 지급이 완료된 후 즉시 폐기됩니다.
+          </p>
+        </div>
+      `,
+      button_label: "제출",
+      data: {
+        phase: "payment_contact",
+        subject_id: subject_id
+      },
+      on_finish: function(data) {
+        data.account_holder = data.response.account_holder.trim();
+        data.bank_name = data.response.bank_name.trim();
+        data.account_number = data.response.account_number.trim();
+        data.contact = data.response.contact.trim();
+      }
+    };
+
+    timeline.push(payment_contact);
+
+    // Save
+    const filename = `exp2_pilot2_${subject_id}.csv`;
+
+    const save_data = {
+      type: jsPsychPipe,
+      action: "save",
+      experiment_id: DATAPIPE_EXPERIMENT_ID,
+      filename: filename,
+      data_string: () => "\uFEFF" + jsPsych.data.get().csv(),
+      wait_message: `
+        <p>응답을 저장하고 있습니다.</p>
+        <p>창을 닫지 마시고 잠시만 기다려주세요.</p>
+      `
+    };
+
+    timeline.push(save_data);
+   
+    // LOCAL DEBUG: DOWNLOAD CSV
+    // function downloadLocalCSV() {
+    //   const csv = "\uFEFF" + jsPsych.data.get().csv();
+    //   const blob =
+    //     new Blob([csv], {type: "text/csv;charset=utf-8;"});
+    //   const url = URL.createObjectURL(blob);
+    //   const link = document.createElement("a");
+    //   link.href = url;
+    //   link.download = `exp2_${subject_id}.csv`;
+    //   document.body.appendChild(link);
+    //   link.click();
+    //   document.body.removeChild(link);
+    //   URL.revokeObjectURL(url);
+    // }
+
+    // const local_download = {
+    //   type: jsPsychHtmlButtonResponse,
+    //   record_data: false,
+    //   stimulus: `
+    //     <div class="saving-box">
+    //       <h2>
+    //         Local test mode
+    //       </h2>
+    //     </div>
+    //   `,
+    //   choices: ["CSV 다운로드"],
+    //   on_finish:
+    //     function() {downloadLocalCSV();}
+    // };
+
+    // timeline.push(local_download);
+
+    // Completion
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="completion-box">
+          <h2>응답이 저장되었습니다.</h2>
+          <p>이제 창을 닫으셔도 됩니다.</p>
+          <h3>참여해 주셔서 감사합니다!</h3>
+        </div>
+        <p>연구 관련 문의가 있으시면, 연구 담당자 홍준선 (junseonh@stanford.edu)에게 연락해 주시기 바랍니다.</p>
+      `,
+      choices: "NO_KEYS",
+      data: {phase: "completion"}
+    });
+
+    jsPsych.run(timeline);
+    </script>
+</body>
+</html>
