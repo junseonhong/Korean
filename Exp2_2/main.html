@@ -819,6 +819,52 @@
       text-align: center;
       color: #000000;
     }
+
+
+    /* =====================================
+    MOBILE LAYOUT FIX
+    ===================================== */
+    @media (max-width: 768px) {
+
+      /* 1. Allow context box to expand with text */
+      .jspsych-content.visual-stage .context-text-container {
+        height: auto !important;
+        min-height: 180px !important;
+        max-height: none !important;
+        overflow: visible !important;
+        justify-content: center;
+      }
+
+      /* 2. Keep text inside the box */
+      .jspsych-content.visual-stage .context-text-line {
+        font-size: 16px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+      }
+
+      /* 3. Keep practice instructions inside normal layout */
+      .jspsych-content.practice-stage .practice-top-note {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        width: 100%;
+        margin: 0 0 12px !important;
+        padding: 0 6px;
+        font-size: 16px;
+        line-height: 1.5;
+        text-align: center;
+      }
+
+      /* 4. Prevent horizontal overflow */
+      .jspsych-content.visual-stage .context-display-box {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+}
+
+
+
   </style>
 
   </head>
@@ -981,13 +1027,46 @@
     totalItems = experimental_items.length;
 
 
+
+    function getDeviceType() {
+      const ua = navigator.userAgent;
+
+      // Tablet
+      if (
+        /iPad/i.test(ua) ||
+        (navigator.platform === "MacIntel" &&
+        navigator.maxTouchPoints > 1) ||
+        (/Android/i.test(ua) && !/Mobile/i.test(ua))
+      ) {
+        return "tablet";
+      }
+
+      // Smartphone
+      if (/iPhone|iPod|Android.*Mobile|Windows Phone|Mobi/i.test(ua)) {
+        return "mobile";
+      }
+
+      // Computer
+      return "computer";
+    }
+
+    function getDeviceTypeSafe() {
+      try {
+        return getDeviceType();
+      } catch (error) {
+        console.warn("Device detection failed:", error);
+        return "unknown";
+      }
+    }
+
     jsPsych.data.addProperties({
       subject_id: subject_id,
       experiment: "Exp2",
       assignment_cell: assignment_cell,
       list_number: list_number,
       yes_no_order: response_buttons.join("|"),
-      fail_list_number: fail_list_number
+      fail_list_number: fail_list_number,
+      device_type: getDeviceTypeSafe(),
     });
 
     const timeline = [];
@@ -1018,7 +1097,7 @@
           <p style="text-align:center;"><strong>연구 개요</strong></p>
           <p>
             본 연구는 사람들이 문장을 어떻게 이해하고 해석하는지 알아보기 위한 연구입니다.
-            연구에 참여하시면 문장과 그림과 확인하고, 관련된 여러 문장들에 대해 판단하게 됩니다.
+            연구에 참여하시면 문장과 그림을 확인하고, 관련된 여러 문장들에 대해 판단하게 됩니다.
             연구 참여는 자발적이며, 원하실 경우 언제든지 참여를 중단하실 수 있습니다.
             연구에 참여하지 않거나 참여 도중 중단하더라도 어떠한 불이익도 없습니다.
           </p>
@@ -1041,7 +1120,10 @@
             연구 내용이나 절차, 연구 참여로 인한 위험 및 이점에 대한 질문, 혹은 연구와 관련된 우려 또는 불만 사항이 있는 경우
             연구책임자 홍준선 (junseonh@stanford.edu, +1-650-509-2164, 010-7227-3912)에게 연락하시기 바랍니다.
           </p>
-          <h3>연구 참여에 동의하시는 경우, 아래의 “동의하고 계속”을 클릭해 주십시오. 동의하지 않으시는 경우에는 창을 닫으시면 됩니다.</h3>
+          <h3>연구 참여에 동의하시는 경우, 아래의 “동의하고 계속”을 클릭해 주십시오. <br> 동의하지 않으시는 경우에는 창을 닫으시면 됩니다.</h3>
+          <p style="text-align:center; font-size:18px;">
+            원활한 실험 진행을 위해 스마트폰이나 태블릿 대신 <strong>컴퓨터</strong>로 참여하는 것을 권장합니다.
+          </p>
         </div>
       `,
       choices: ["동의하고 계속"]
@@ -1177,9 +1259,6 @@
               먼저 다음 화면에서 예시 두 개를 보여드리겠습니다. 예시에서 선택하는 응답은 기록되지 않습니다.
             </p>
           </div>
-          <p>
-            본 실험은 컴퓨터 환경에 최적화되어 있습니다. 원활한 실험 진행을 위해 컴퓨터 이용을 권장합니다.
-          </p>
         </div>
       `],
       show_clickable_nav: true,
@@ -1567,6 +1646,7 @@
     const experiment_start = {
       type: jsPsychHtmlButtonResponse,
       record_data: true,
+      save_trial_parameters: {stimulus: false},
       stimulus: `
         <div class="trial-card">
           <h2>이제 본 실험을 시작하겠습니다</h2>
