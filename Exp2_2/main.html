@@ -807,15 +807,14 @@
     .jspsych-content.practice-stage .trial-card {
       position: relative;
     }
-
+    
     .jspsych-content.practice-stage .practice-top-note {
-      position: absolute;
-      top: -35px;
-      left: 0;
+      position: static;
       width: 100%;
-      margin: 0;
-      font-size: 20px;
-      line-height: 1.4;
+      margin: 0 0 12px;
+      padding: 0 8px;
+      font-size: clamp(16px, 1vw, 20px);
+      line-height: 1.5;
       text-align: center;
       color: #000000;
     }
@@ -928,6 +927,30 @@
   }
 }
 
+
+/* Fix practice instructions on short screens */
+@media (max-height: 800px) {
+
+  /* Prevent vertical centering from clipping content */
+  .jspsych-content-wrapper:has(.practice-stage) {
+    display: block !important;
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  /* Reserve actual space for practice instructions */
+  .jspsych-content.practice-stage .practice-top-note {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100%;
+    margin: 0 0 12px !important;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: center;
+  }
+}
 
 
 
@@ -1341,7 +1364,7 @@
               문장과 그림은 총 7단계에 걸쳐 차례대로 제시됩니다. <br> 각 단계마다 <strong>새로운 문장이 추가</strong>되며, 그림에는 그때까지 <strong>진행된 상황이 반영</strong>됩니다.
             </p>
             <p>
-              7단계가 끝나면 앞에서 본 내용과 관련된 문장들이 하나씩 제시됩니다. <br> 각 문장이 주어진 상황에서 참인지 판단해 주시면 됩니다.
+              7단계가 끝나면 앞에서 본 내용과 관련된 문장들이 하나씩 제시됩니다. <br> 문장을 읽고, 주어진 상황에서 각 문장이 참인지 판단해 주시면 됩니다.
             </p>
             <p>
               먼저 다음 화면에서 예시 두 개를 보여드리겠습니다. 예시에서 선택하는 응답은 기록되지 않습니다.
