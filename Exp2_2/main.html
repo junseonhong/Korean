@@ -865,7 +865,10 @@
 
 
 /* Tablet layout adjustment */
-@media (min-width: 600px) and (max-width: 1366px) {
+/* Tablet landscape only */
+@media (min-width: 600px) and (max-width: 1366px)
+       and (orientation: landscape)
+       and (pointer: coarse) {
 
   /* Reduce vertical spacing */
   .jspsych-content-wrapper {
@@ -888,7 +891,7 @@
   }
 
   .jspsych-content.visual-stage .context-text-line {
-    font-size: clamp(15px, 2dvh, 18px);
+    font-size: 18px;
     line-height: 1.35;
     margin: 2px 0;
   }
@@ -896,7 +899,7 @@
   /* Scale the picture to available screen height */
   .jspsych-content.visual-stage .experiment-image {
     width: 100%;
-    max-height: 30dvh !important;
+    max-height: 40dvh !important;
     object-fit: contain;
   }
 
