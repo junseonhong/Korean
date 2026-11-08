@@ -762,7 +762,7 @@
     }
 
     .jspsych-content.visual-stage .context-text-line {
-      font-size: clamp(16px, 2.5dvh, 20px);
+      font-size: clamp(16px, 2.5dvh, 19px);
       line-height: 1.5;
     }
 
@@ -952,6 +952,32 @@
   }
 }
 
+/* Second practice transition screen */
+
+/* Hide the example content but preserve its space */
+.jspsych-content.practice-transition-stage .context-display-box,
+.jspsych-content.practice-transition-stage .judgment-placeholder {
+  visibility: hidden;
+}
+
+/* Position the announcement over the hidden content */
+.jspsych-content.practice-transition-stage .trial-card {
+  position: relative;
+}
+
+.jspsych-content.practice-transition-stage .transition-message {
+  position: absolute;
+  top: 45%;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
 
 
   </style>
@@ -974,11 +1000,9 @@
 
     // 2 fail lists × 2 negation lists × 2 button orders = 8
     const assignment_cell = Math.floor(Math.random() * 8);
-
     const list_number = (assignment_cell % 2) + 1;
     const response_order = Math.floor(assignment_cell / 2) % 2;
     const fail_list_number = Math.floor(assignment_cell / 4) + 1;
-
     const response_buttons =
       response_order === 0
         ? ["예", "아니오"]
@@ -1025,101 +1049,96 @@
     // Shuffle selected items - not allowing 3 consecutive trials
     function shuffleNoThreeConsecutive(items) {
       const groups = new Map();
-
       // Group items by context type AND fail position
       for (const item of items) {
         const key = `${item.type}_${item.fail}`;
-
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push(item);
       }
-
       const keys = [...groups.keys()];
-
       for (const key of keys) {
         groups.set(
           key,
           jsPsych.randomization.shuffle(groups.get(key))
         );
       }
-
       const result = [];
       const impossible = new Set();
-
       function arrange(lastType = null, lastFail = null, count = 0) {
         if (result.length === items.length) return true;
-
         const state = [
           ...keys.map(key => groups.get(key).length),
           lastType,
           lastFail,
           count
         ].join("|");
-
         if (impossible.has(state)) return false;
-
         const candidates = jsPsych.randomization.shuffle(
           keys.filter(key => {
             const group = groups.get(key);
             if (group.length === 0) return false;
-
             const next = group[group.length - 1];
-
             // Rule 1: No three consecutive PE or BASE
-            if (next.type === lastType && count >= 2) {
-              return false;
-            }
-
+            if (next.type === lastType && count >= 2) {return false;}
             // Rule 2: Same context cannot repeat same fail
-            if (
-              next.type === lastType &&
-              next.fail === lastFail
-            ) {
-              return false;
-            }
-
+            if (next.type === lastType && next.fail === lastFail) {return false;}
             return true;
           })
         );
-
         for (const key of candidates) {
           const next = groups.get(key).pop();
           result.push(next);
-
-          const nextCount =
-            next.type === lastType ? count + 1 : 1;
-
-          if (arrange(next.type, next.fail, nextCount)) {
-            return true;
-          }
-
+          const nextCount = next.type === lastType ? count + 1 : 1;
+          if (arrange(next.type, next.fail, nextCount)) {return true;}
           result.pop();
           groups.get(key).push(next);
         }
-
         impossible.add(state);
         return false;
       }
-
       if (!arrange()) {
         throw new Error(
           "Cannot arrange items with the current constraints."
         );
       }
-
       return result;
     }
 
-    const experimental_items =
-      shuffleNoThreeConsecutive(selected_items);
-    
+    const experimental_items = shuffleNoThreeConsecutive(selected_items);
     totalItems = experimental_items.length;
+    // Balance F2/F3 across context, negation form, and fail position
+    const fillerByItem = new Map();
+    for (const type of RUN_TYPES) {
+      const flip = Math.floor(Math.random() * 2);
+      for (const [formIndex, form] of ["LFN", "SFN"].entries()) {
+        for (const [failIndex, fail] of [2, 3].entries()) {
+          const group = experimental_items.filter(item =>
+            item.type === type &&
+            item.negation_form === form &&
+            item.fail === fail
+          );
+          if (group.length !== 5) {
+            throw new Error(
+              `Unexpected group size: ${type}, ${form}, fail${fail}`
+            );
+          }
+          // Alternate 2/3 to maintain balance across conditions
+          const nF2 =
+            (formIndex + failIndex + flip) % 2 === 0 ? 2 : 3;
 
-
+          const assigned = jsPsych.randomization.shuffle([
+            ...Array(nF2).fill("f2"),
+            ...Array(5 - nF2).fill("f3")
+          ]);
+          group.forEach((item, i) => {
+            fillerByItem.set(item, assigned[i]);
+          });
+        }
+      }
+    }
 
     function getDeviceType() {
       const ua = navigator.userAgent;
-
       // Tablet
       if (
         /iPad/i.test(ua) ||
@@ -1129,12 +1148,10 @@
       ) {
         return "tablet";
       }
-
       // Smartphone
       if (/iPhone|iPod|Android.*Mobile|Windows Phone|Mobi/i.test(ua)) {
         return "mobile";
       }
-
       // Computer
       return "computer";
     }
@@ -1161,12 +1178,35 @@
     const timeline = [];
 
     // Preload
+    const requiredImages = [
+      "stage0_image",
+      "stage1_image",
+      "stage2_image",
+      "stage3_image",
+      "critical0_image",
+      "critical1_image",
+      "critical2_image",
+      "critical3_image"
+    ];
+
+    const missingImages = window.EXP2_STIMULI.flatMap(item =>
+      requiredImages
+        .filter(key => !item[key])
+        .map(key => `${item.type} ${item.item} fail${item.fail}: ${key}`)
+    );
+
+    if (missingImages.length > 0) {
+      console.error("Missing image definitions:", [...new Set(missingImages)]);
+      throw new Error("Some stimulus image paths are missing.");
+    }
+
     const image_files = [...new Set(
       window.EXP2_STIMULI.flatMap(item => [
         item.stage0_image,
         item.stage1_image,
         item.stage2_image,
         item.stage3_image,
+        item.critical0_image,
         item.critical1_image,
         item.critical2_image,
         item.critical3_image
@@ -1175,7 +1215,7 @@
 
     timeline.push({type: jsPsychPreload, images: image_files});
 
-    //Requirement
+    // //Requirement
     const device_notice = {
       type: jsPsychHtmlButtonResponse,
       record_data: false,
@@ -1206,7 +1246,7 @@
       stimulus: `
         <div class="consent">
           <h2 style="text-align:center;">연구 참여 안내 및 동의</h2>
-          <h3 style="text-align:center;">언어 이해 및 해석에 관한 행동 연구</h3>
+          <h3 style="text-align:center;">언어 이해 및 해석에 관한 행동 연구 (IRB-89118)</h3>
           <p style="text-align:center;"><strong>연구 개요</strong></p>
           <p>
             본 연구는 사람들이 문장을 어떻게 이해하고 해석하는지 알아보기 위한 연구입니다.
@@ -1245,13 +1285,14 @@
     // Eligibility
     let eligibility_passed = false;
     let retry_eligibility = false;
+    let eligibility_answers = null;
 
     const eligibility_check = {
       type: jsPsychSurveyHtmlForm,
       preamble: `
         <div style="max-width:700px; margin:auto; text-align:center;">
           <h3>연구 참여에 동의해 주셔서 감사합니다.</h3>
-          <h3>본 연구는 만 18세 이상이며 한국어를 모국어로 사용하는 분을 대상으로 합니다.</h3>
+          <p>본 연구는 이중언어 화자가 아닌 만 18세 이상의 한국어 모국어 화자를 대상으로 합니다.</p>
         </div>
       `,
       html: `
@@ -1264,10 +1305,24 @@
             </div>
           </div>
           <div style="margin:30px 0;">
-            <p style="text-align:center;"><strong>2. 어린 시절부터 한국어를 자연스럽게 습득하셨나요?</strong></p>
+            <p style="text-align:center;"><strong>2. 한국어를 어린 시절부터 모국어로 사용해 오셨나요?</strong></p>
             <div style="text-align:center;">
               <label style="margin-right:25px;"><input type="radio" name="native_korean" value="yes" required> 예</label>
               <label><input type="radio" name="native_korean" value="no"> 아니요</label>
+            </div>
+          </div>
+          <div style="margin:30px 0;">
+            <p style="text-align:center;">
+              <strong>
+                3. 성장 과정에서 (만 18세 이전) 한국어 외의 다른 언어를 가정이나 일상생활에서 정기적으로 사용한 경험이 있으신가요?
+              </strong>
+            </p>
+            <p style="font-size:15px;text-align:center;color:#64748b;">
+              학교나 학원에서의 외국어 수업이나 단기간의 해외 체류 경험(어학연수, 교환학생 등)은 제외하고 답변해 주세요.
+            </p>
+            <div style="text-align:center;">
+              <label style="margin-right:25px;"><input type="radio" name="early_bilingual" value="yes" required> 예 </label>
+              <label><input type="radio" name="early_bilingual" value="no"> 아니오 </label>
             </div>
           </div>
         </div>
@@ -1275,33 +1330,82 @@
       button_label: "계속",
       data: {phase: "eligibility"},
       on_finish: function(data) {
-        eligibility_passed = data.response.age_18 === "yes" && data.response.native_korean === "yes";
+        eligibility_answers = { ...data.response };
+        eligibility_passed =
+          data.response.age_18 === "yes" &&
+          data.response.native_korean === "yes" &&
+          data.response.early_bilingual === "no";
         retry_eligibility = false;
+        data.early_bilingual = data.response.early_bilingual;
+        data.eligibility_passed = eligibility_passed;
       }
     };
     const eligibility_failed_trial = {
-      type: jsPsychHtmlButtonResponse,
-      stimulus: `
-        <div class="completion-box">
-          <p>죄송하지만 본 연구의 참여 조건에 해당하지 않습니다.</p>
-          <p>응답을 잘못 선택하셨다면 <strong>“다시 확인하기”</strong>를 클릭해 주세요.</p>
-          <p>관심을 가져주셔서 감사합니다.</p>
-        </div>
-      `,
-      choices: ["다시 확인하기", "실험 종료"],
-      on_finish: function(data) {
-        if (data.response === 0) {
-          retry_eligibility = true;
-        } else {
-          jsPsych.abortExperiment(`
-            <div class="completion-box">
-              <p>연구에 관심을 가져주셔서 감사합니다.</p>
-              <p>이제 창을 닫으셔도 됩니다.</p>
-            </div>
-          `);
-        }
-      }
+  type: jsPsychHtmlButtonResponse,
+
+  stimulus: function() {
+    const answers = eligibility_answers || {};
+    const showAnswer = (value) => {
+      if (value === "yes") return "예";
+      if (value === "no") return "아니요";
+      return "미응답";
     };
+    return `
+      <div class="completion-box">
+        <p>
+          죄송하지만 본 연구의 참여 조건에 해당하지 않습니다. <br>
+          아래에서 선택하신 응답을 확인해 주세요.
+        </p>
+        <div style="text-align:left; max-width:650px; margin:25px auto; padding:20px; background:#f8fafc; border-radius:10px;">
+          <p>
+            <strong>1. 만 18세 이상이신가요?</strong>
+          </p>
+          <p>
+            <strong>${showAnswer(answers.age_18)}</strong>
+          </p>
+          <hr>
+          <p>
+            <strong>
+              2. 한국어를 어린 시절부터 모국어로 사용해 오셨나요?
+            </strong>
+          </p>
+          <p>
+            <strong>${showAnswer(answers.native_korean)}</strong>
+          </p>
+          <hr>
+          <p>
+            <strong>
+              3. 성장 과정에서 (만 18세 이전) 한국어 외의 다른 언어를 가정이나 일상생활에서 정기적으로 사용한 경험이 있으신가요?
+            </strong>
+          </p>
+          <p>
+            <strong>${showAnswer(answers.early_bilingual)}</strong>
+          </p>
+        </div>
+        <p>
+          응답을 잘못 선택하셨다면
+          <strong>“다시 선택하기”</strong>를 클릭해 주세요.
+        </p>
+        <p>관심을 가져주셔서 감사합니다.</p>
+      </div>
+    `;
+  },
+
+  choices: ["다시 선택하기", "실험 종료"],
+
+  on_finish: function(data) {
+    if (data.response === 0) {
+      retry_eligibility = true;
+    } else {
+      jsPsych.abortExperiment(`
+        <div class="completion-box">
+          <p>연구에 관심을 가져주셔서 감사합니다.</p>
+          <p>이제 창을 닫으셔도 됩니다.</p>
+        </div>
+      `);
+    }
+  }
+};
 
     const eligibility_failed = {
       timeline: [eligibility_failed_trial],
@@ -1361,13 +1465,13 @@
              이 실험은 문장과 그림을 통해 제시되는 내용을 확인하고, 이후 주어지는 문장이 참인지 거짓인지 판단하는 실험입니다.
             </p>
             <p>
-              문장과 그림은 총 7단계에 걸쳐 차례대로 제시됩니다. <br> 각 단계마다 <strong>새로운 문장이 추가</strong>되며, 그림에는 그때까지 <strong>진행된 상황이 반영</strong>됩니다.
+              문장과 그림은 여러 단계에 걸쳐 차례대로 제시됩니다. <br> 각 단계마다 <strong>새로운 문장이 추가</strong>되며, 그림에는 그때까지 <strong>진행된 상황이 반영</strong>됩니다.
             </p>
             <p>
-              7단계가 끝나면 앞에서 본 내용과 관련된 문장들이 하나씩 제시됩니다. <br> 문장을 읽고, 주어진 상황에서 각 문장이 참인지 판단해 주시면 됩니다.
+              문장과 그림이 제시되는 단계가 끝나면 해당 내용과 관련된 문장들이 하나씩 제시됩니다. <br> 문장을 읽고, 주어진 상황에서 각 문장이 참인지 판단해 주시면 됩니다.
             </p>
             <p>
-              먼저 다음 화면에서 예시 두 개를 보여드리겠습니다. 예시에서 선택하는 응답은 기록되지 않습니다.
+              먼저 두 개의 예시를 통해 실험 진행 방식을 안내해 드리겠습니다. <br> 예시를 보여드리는 단계에서 선택하시는 응답은 기록되지 않습니다.
             </p>
           </div>
         </div>
@@ -1379,7 +1483,7 @@
 
     timeline.push(instructions);
 
-    // // Start
+    // Start
     // timeline.push({
     //   type: jsPsychHtmlButtonResponse,
     //   record_data: false,
@@ -1402,6 +1506,7 @@
         item.stage1_image,
         item.stage2_image,
         item.stage3_image,
+        item.critical0_image,
         item.critical1_image,
         item.critical2_image,
         item.critical3_image
@@ -1412,6 +1517,7 @@
         "stage1",
         "stage2",
         "stage3",
+        "critical0",
         "critical1",
         "critical2",
         "critical3"
@@ -1424,13 +1530,14 @@
       const line2 = `
         <span class="${stage_index >= 1 ? "" : "hidden-text"}">${item.stage1_sentence} </span>
         <span class="${stage_index >= 2 ? "" : "hidden-text"}">${item.stage2_sentence} </span>
-        <span class="${stage_index >= 3 ? "" : "hidden-text"}">${item.stage3_sentence}</span>
+        <span class="${stage_index >= 3 ? "" : "hidden-text"}">${item.stage3_sentence} </span>
       `;
 
       const line3 = `
-        <span class="${stage_index >= 4 ? "" : "hidden-text"}">${item.critical1_sentence} </span>
-        <span class="${stage_index >= 5 ? "" : "hidden-text"}">${item.critical2_sentence} </span>
-        <span class="${stage_index >= 6 ? "" : "hidden-text"}">${item.critical3_sentence}</span>
+        <span class="${stage_index >= 4 ? "" : "hidden-text"}">${item.critical0_sentence} </span>
+        <span class="${stage_index >= 5 ? "" : "hidden-text"}">${item.critical1_sentence} </span>
+        <span class="${stage_index >= 6 ? "" : "hidden-text"}">${item.critical2_sentence} </span>
+        <span class="${stage_index >= 7 ? "" : "hidden-text"}">${item.critical3_sentence}</span>
       `;
 
       return {
@@ -1483,7 +1590,7 @@
               <div class="context-text-container">
                 <p class="context-text-line">${item.stage0_sentence}</p>
                 <p class="context-text-line">${item.stage1_sentence} ${item.stage2_sentence} ${item.stage3_sentence}</p>
-                <p class="context-text-line">${item.critical1_sentence} ${item.critical2_sentence} ${item.critical3_sentence}</p>
+                <p class="context-text-line">${item.critical0_sentence} ${item.critical1_sentence} ${item.critical2_sentence} ${item.critical3_sentence}</p>
               </div>
               <img class="experiment-image" src="${item.critical3_image}">
             </div>
@@ -1534,27 +1641,36 @@
     
     // Select the appropriate filler field.
     function getFillerKey(item, fillerType, answer) {
-      // F1 is affirmative, so it has no LFN/SFN distinction.
-      if (fillerType === "f1") {return `f1_${answer}`;}
-      // F2/F3: use the same negation form as the target.
-      const formKey = `${fillerType}_${item.negation_form}_${answer}`;
+    // F1: affirmative filler
+    if (fillerType === "f1") {return `f1_${answer}`;}
+    // F3 uses the opposite negation form from Target.
+    const fillerForm = fillerType === "f3"
+      ? (item.negation_form === "LFN" ? "SFN" : "LFN")
+      : item.negation_form;
+    const formKey = `${fillerType}_${fillerForm}_${answer}`;
+    // F3: choose the opposite negation form.
+    if (fillerType === "f3") {
       if (typeof item[formKey] === "string") {return formKey;}
-      // Allow affirmative F2 with a shared field name.
-      if (fillerType === "f2") {const commonKey = `f2_${answer}`;
-        if (typeof item[commonKey] === "string") {
-          if (/않|(?:^|\s)안\s|못\s/.test(item[commonKey])) {throw new Error(`${item.item}: ${commonKey} is negative. ` + `Use ${formKey} instead.`);}
-          return commonKey;
-        }
-      }
-      throw new Error(`Missing filler: ${item.item}, fail${item.fail}, ${formKey}`);
+      throw new Error(`Missing F3: ${item.item}, fail${item.fail}, ${formKey}`);
     }
+    // F2: affirmative filler, shared across LFN/SFN.
+    if (fillerType === "f2") {
+      const commonKey = `f2_${answer}`;
+      if (typeof item[commonKey] === "string") {
+        if (/않|(?:^|\s)안\s|못\s/.test(item[commonKey])) {throw new Error(`${item.item}: ${commonKey} is negative.`);
+        }
+        return commonKey;
+      }
+    }
+    throw new Error(`Missing filler: ${item.item}, fail${item.fail}, ${formKey}`);
+  }
 
     // Add all experiment items
     function addExperimentItem(item, trial_order) {
       // Seven picture/context stages
-      for (let stage_index = 0; stage_index < 7; stage_index++) {timeline.push(makeStageTrial(item, stage_index, trial_order));}
+      for (let stage_index = 0; stage_index < 8; stage_index++) {timeline.push(makeStageTrial(item, stage_index, trial_order));}
       // Randomly choose F1-F3 or F1-F2 filler types.
-      const selectedTypes = ["f1", jsPsych.randomization.shuffle(["f2", "f3"])[0]];
+      const selectedTypes = ["f1", fillerByItem.get(item)];
       // One correct Yes, one correct No.
       const selectedAnswers = jsPsych.randomization.shuffle(["y", "n"]);
       const fillerJudgments = selectedTypes.map((fillerType, index) => {
@@ -1568,10 +1684,10 @@
             type: "filler",
             filler_type: fillerType,
             answer_condition: answer,
-            negation_form:
-              key.startsWith(`${fillerType}_${item.negation_form}_`)
-                ? item.negation_form
-                : null,
+           negation_form:
+            fillerType === "f3"
+              ? (item.negation_form === "LFN" ? "SFN" : "LFN")
+              : null,
             sentence: item[key],
             correct_response: item[`${key}_correct`]
           };
@@ -1594,8 +1710,15 @@
           filler_pattern: fillerPattern
         }))
       ];
-      // Randomize target and filler presentation order.
-      const randomized_judgments = jsPsych.randomization.shuffle(judgments);
+      // Randomize judgment order, but never present F3 before Target.
+      let randomized_judgments;
+      do {
+        randomized_judgments = jsPsych.randomization.shuffle(judgments);
+      } while (
+        randomized_judgments.some(j => j.filler_type === "f3") &&
+        randomized_judgments.findIndex(j => j.filler_type === "f3") <
+        randomized_judgments.findIndex(j => j.type === "target")
+      );
       randomized_judgments.forEach((judgment, index) => {
         timeline.push(makeJudgmentTrial(item, judgment, trial_order, index + 1)
         );
@@ -1611,6 +1734,7 @@
         "stims/PRACTICE/practice_classroom_2.png",
         "stims/PRACTICE/practice_classroom_3.png",
         "stims/PRACTICE/practice_classroom_4.png",
+        "stims/PRACTICE/practice_classroom_4b.png",
         "stims/PRACTICE/practice_classroom_5.png",
         "stims/PRACTICE/practice_classroom_6.png"
       ],
@@ -1619,7 +1743,8 @@
         "먼저 칠판을 닦았고,",
         "이어서 창문을 닫았으며,",
         "책을 책장에 꽂았다.",
-        "그리고 전등을 끄고,",
+        "이어 교실을 한번 둘러본 뒤,",
+        "전등을 끄고,",
         "의자를 책상 아래에 넣었지만,",
         "교실 문은 닫지 않았다."
       ]
@@ -1631,15 +1756,17 @@
         "stims/PRACTICE/practice_mail_2.png",
         "stims/PRACTICE/practice_mail_3.png",
         "stims/PRACTICE/practice_mail_4.png",
+        "stims/PRACTICE/practice_mail_4b.png",
         "stims/PRACTICE/practice_mail_5.png",
         "stims/PRACTICE/practice_mail_6.png"
       ],
       sentences: [
         "우체국 직원이 접수된 편지 세 통과 택배 세 개를 발송할 준비를 하고 있다.",
-        "먼저 첫 번째 편지 봉투에 우표를 붙였고,",
-        "이어서 두 번째 편지 봉투에도 우표를 붙였지만,",
+        "첫 번째 편지 봉투에 우표를 붙였고,",
+        "두 번째 편지 봉투에도 우표를 붙였지만,",
         "세 번째 편지 봉투에는 우표를 붙이지 않았다.",
-        "다음으로 첫 번째 택배 박스에 배송 스티커를 붙였고,",
+        "이어 택배 박스에 배송 스티커를 붙이기 시작해,",
+        "첫 번째 택배 박스에 배송 스티커를 붙였고,",
         "두 번째 택배 박스에는 배송 스티커를 붙이지 않았지만,",
         "세 번째 택배 박스에는 배송 스티커를 붙였다."
       ]
@@ -1667,8 +1794,19 @@
     const practiceTimeline = [];
       let repeatPractice = false;
 
-    practiceConfigs.forEach((practice) => {
-      const example = practice.example;
+    practiceConfigs.forEach((practice, practiceIndex) => {
+    // Show a transition screen before the second practice example.
+    // if (practiceIndex === 1) {
+    //   practiceTimeline.push({
+    //     type: jsPsychHtmlButtonResponse,
+    //     record_data: false,
+    //     stimulus: `<p>이어서 두 번째 예시를 보여드리겠습니다.</p>`,
+    //     choices: ["계속"],
+    //     css_classes: ["practice-stage"]
+    //   });
+    // }
+
+  const example = practice.example;
       const practiceItem = {
         item: practice.id,
         type: "PRACTICE",
@@ -1679,16 +1817,18 @@
         stage1_image: example.images[1],
         stage2_image: example.images[2],
         stage3_image: example.images[3],
-        critical1_image: example.images[4],
-        critical2_image: example.images[5],
-        critical3_image: example.images[6],
+        critical0_image: example.images[4],
+        critical1_image: example.images[5],
+        critical2_image: example.images[6],
+        critical3_image: example.images[7],
         stage0_sentence: example.sentences[0],
         stage1_sentence: example.sentences[1],
         stage2_sentence: example.sentences[2],
         stage3_sentence: example.sentences[3],
-        critical1_sentence: example.sentences[4],
-        critical2_sentence: example.sentences[5],
-        critical3_sentence: example.sentences[6]
+        critical0_sentence: example.sentences[4],
+        critical1_sentence: example.sentences[5],
+        critical2_sentence: example.sentences[6],
+        critical3_sentence: example.sentences[7]
       };
       // Preload images
       practiceTimeline.push({
@@ -1696,8 +1836,33 @@
         images: example.images,
         record_data: false
       });
-      // Seven picture/context stages
-      for (let stage = 0; stage < 7; stage++) {
+      // Transition screen before the second example
+      if (practiceIndex === 1) {
+        const transitionTrial = makeStageTrial(practiceItem, 0, 0);
+        transitionTrial.choices = ["계속"];
+        transitionTrial.record_data = false;
+        transitionTrial.data = { phase: "practice_transition" };
+        transitionTrial.css_classes = [
+          "practice-stage",
+          "visual-stage",
+          "sequence-stage",
+          "practice-transition-stage"
+        ];
+        transitionTrial.stimulus = transitionTrial.stimulus.replace(
+          '<div class="trial-card">',
+          `<div class="trial-card">
+            <p class="practice-top-note" style="visibility:hidden;">
+              아래의 상황 설명을 읽고, 그림을 확인한 후
+              <strong>“다음”</strong>을 클릭해 주세요.
+            </p>
+            <p class="transition-message">
+              이어서 두 번째 예시를 보여드리겠습니다.
+            </p>`
+        );
+        practiceTimeline.push(transitionTrial);
+      }
+      // Eight picture/context stages
+      for (let stage = 0; stage < 8; stage++) {
         const trial = makeStageTrial(practiceItem, stage, 0);
         trial.record_data = false;
         trial.data = {
@@ -1706,13 +1871,13 @@
         };
         trial.css_classes = [...trial.css_classes, "practice-stage"];
         trial.stimulus = trial.stimulus.replace(
-          '<div class="trial-card">',
-          `<div class="trial-card">
-            <p class="practice-top-note">
-              아래의 상황 설명을 읽고, 그림을 확인한 후
-              <strong>“다음”</strong>을 클릭해 주세요.
-            </p>`
-        );
+        '<div class="trial-card">',
+        `<div class="trial-card">
+          <p class="practice-top-note">
+            아래의 상황 설명을 읽고, 그림을 확인한 후
+            <strong>“다음”</strong>을 클릭해 주세요.
+          </p>`
+      );
         practiceTimeline.push(trial);
       }
 
@@ -1763,8 +1928,7 @@
           <h2>이제 본 실험을 시작하겠습니다</h2>
           <div class="begin-box">
             <p>
-              본 실험에서도 예시와 동일하게
-              그림과 상황 설명이 차례대로 제시됩니다.
+              본 실험에서도 예시와 동일하게 그림과 상황 설명이 차례대로 제시됩니다.
             </p>
             <p>
               각 상황을 보고 문장이 주어진 상황에서 참인지 판단하여
@@ -1798,83 +1962,81 @@
         }
     });
 
-
-
     experimental_items.forEach((item, index) => {addExperimentItem(item, index + 1);});
 
     // DEBUG: SUMMARY TABLE
-    // const DEBUG_MODE = true;
-    // if (DEBUG_MODE) {
-    //   const debugRows = experimental_items.map((item, i) => {
-    //     const judgments = timeline
-    //       .filter(t => t.data?.trial_order === i + 1 && t.data?.trial_stage === "judgment")
-    //       .sort((a, b) => a.data.judgment_order - b.data.judgment_order);
-    //     const fillerTrials = judgments.filter(t => t.data.item_type === "filler");
-    //     const consecutive =
-    //       i > 0 && experimental_items[i - 1].type === item.type
-    //         ? (i > 1 && experimental_items[i - 2].type === item.type ? 3 : 2): 1;
-    //     return {
-    //       order: i + 1,
-    //       context: item.type,
-    //       item: item.item,
-    //       fail: item.fail,
-    //       negation: item.negation_form,
-    //       fillers: fillerTrials.map(t => `${t.data.filler_type.toUpperCase()}(${t.data.filler_answer_condition})`).join(" + "),
-    //       judgmentOrder: judgments.map(t => t.data.item_type === "target"
-    //           ? "Target"
-    //           : `${t.data.filler_type.toUpperCase()}(${t.data.filler_answer_condition})`).join(" → "),
-    //       consecutive: consecutive
-    //     };
-    //   });
-    //   // Also display in browser developer console
-    //   console.table(debugRows);
-    //   const tableRows = debugRows.map(row => `
-    //     <tr style="background:${row.consecutive >= 3 ? "#fee2e2" : "white"};">
-    //       <td>${row.order}</td>
-    //       <td>${row.context}</td>
-    //       <td>${row.item}</td>
-    //       <td>${row.fail}</td>
-    //       <td>${row.negation}</td>
-    //       <td>${row.fillers}</td>
-    //       <td>${row.judgmentOrder}</td>
-    //       <td>${row.consecutive >= 3 ? "⚠ 3연속" : row.consecutive}</td>
-    //     </tr>
-    //   `).join("");
-    //   const debugTrial = {
-    //     type: jsPsychHtmlButtonResponse,
-    //     record_data: false,
-    //     stimulus: `
-    //       <div style="max-width:1100px;margin:auto;text-align:center;">
-    //         <h2>DEBUG: Experiment Randomization</h2>
-    //         <p>
-    //           Total: ${debugRows.length} items |
-    //           PE: ${debugRows.filter(r => r.context === "PE").length} |
-    //           BASE: ${debugRows.filter(r => r.context === "BASE").length}
-    //         </p>
-    //         <div style="max-height:65vh;overflow:auto;">
-    //           <table style=" width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
-    //             <thead style="background:#e2e8f0;">
-    //               <tr>
-    //                 <th>Order</th>
-    //                 <th>Context</th>
-    //                 <th>Item</th>
-    //                 <th>Fail</th>
-    //                 <th>Negation</th>
-    //                 <th>Fillers</th>
-    //                 <th>Judgment Order</th>
-    //                 <th>Consecutive</th>
-    //               </tr>
-    //             </thead>
-    //             <tbody>${tableRows}</tbody>
-    //           </table>
-    //         </div>
-    //       </div>
-    //     `,
-    //     choices: ["실험 시작"]
-    //   };
-    //   // Insert after image preloading, before the experiment
-    //   timeline.splice(1, 0, debugTrial);
-    // }
+    const DEBUG_MODE = false;
+    if (DEBUG_MODE) {
+      const debugRows = experimental_items.map((item, i) => {
+        const judgments = timeline
+          .filter(t => t.data?.trial_order === i + 1 && t.data?.trial_stage === "judgment")
+          .sort((a, b) => a.data.judgment_order - b.data.judgment_order);
+        const fillerTrials = judgments.filter(t => t.data.item_type === "filler");
+        const consecutive =
+          i > 0 && experimental_items[i - 1].type === item.type
+            ? (i > 1 && experimental_items[i - 2].type === item.type ? 3 : 2): 1;
+        return {
+          order: i + 1,
+          context: item.type,
+          item: item.item,
+          fail: item.fail,
+          negation: item.negation_form,
+          fillers: fillerTrials.map(t => `${t.data.filler_type.toUpperCase()}(${t.data.filler_answer_condition})`).join(" + "),
+          judgmentOrder: judgments.map(t => t.data.item_type === "target"
+              ? "Target"
+              : `${t.data.filler_type.toUpperCase()}(${t.data.filler_answer_condition})`).join(" → "),
+          consecutive: consecutive
+        };
+      });
+      // Also display in browser developer console
+      console.table(debugRows);
+      const tableRows = debugRows.map(row => `
+        <tr style="background:${row.consecutive >= 3 ? "#fee2e2" : "white"};">
+          <td>${row.order}</td>
+          <td>${row.context}</td>
+          <td>${row.item}</td>
+          <td>${row.fail}</td>
+          <td>${row.negation}</td>
+          <td>${row.fillers}</td>
+          <td>${row.judgmentOrder}</td>
+          <td>${row.consecutive >= 3 ? "⚠ 3연속" : row.consecutive}</td>
+        </tr>
+      `).join("");
+      const debugTrial = {
+        type: jsPsychHtmlButtonResponse,
+        record_data: false,
+        stimulus: `
+          <div style="max-width:1100px;margin:auto;text-align:center;">
+            <h2>DEBUG: Randomization</h2>
+            <p>
+              Total: ${debugRows.length} items |
+              PE: ${debugRows.filter(r => r.context === "PE").length} |
+              BASE: ${debugRows.filter(r => r.context === "BASE").length}
+            </p>
+            <div style="max-height:65vh;overflow:auto;">
+              <table style=" width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
+                <thead style="background:#e2e8f0;">
+                  <tr>
+                    <th>Order</th>
+                    <th>Context</th>
+                    <th>Item</th>
+                    <th>Fail</th>
+                    <th>Negation</th>
+                    <th>Fillers</th>
+                    <th>Judgment Order</th>
+                    <th>Consecutive</th>
+                  </tr>
+                </thead>
+                <tbody>${tableRows}</tbody>
+              </table>
+            </div>
+          </div>
+        `,
+        choices: ["실험 시작"]
+      };
+      // Insert after image preloading, before the experiment
+      timeline.splice(1, 0, debugTrial);
+    }
 
     // Experiment end
     timeline.push({
@@ -1933,7 +2095,7 @@
     timeline.push(payment_contact);
 
     // Save
-    const filename = `exp2_pilot2_${subject_id}.csv`;
+    const filename = `exp2_main_${subject_id}.csv`;
 
     const save_data = {
       type: jsPsychPipe,
