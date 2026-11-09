@@ -1057,10 +1057,7 @@
       }
       const keys = [...groups.keys()];
       for (const key of keys) {
-        groups.set(
-          key,
-          jsPsych.randomization.shuffle(groups.get(key))
-        );
+        groups.set(key, jsPsych.randomization.shuffle(groups.get(key)));
       }
       const result = [];
       const impossible = new Set();
@@ -1096,11 +1093,7 @@
         impossible.add(state);
         return false;
       }
-      if (!arrange()) {
-        throw new Error(
-          "Cannot arrange items with the current constraints."
-        );
-      }
+      if (!arrange()) {throw new Error("Cannot arrange items with the current constraints.");}
       return result;
     }
 
@@ -1117,22 +1110,15 @@
             item.negation_form === form &&
             item.fail === fail
           );
-          if (group.length !== 5) {
-            throw new Error(
-              `Unexpected group size: ${type}, ${form}, fail${fail}`
-            );
+          if (group.length !== 5) {throw new Error(`Unexpected group size: ${type}, ${form}, fail${fail}`);
           }
           // Alternate 2/3 to maintain balance across conditions
-          const nF2 =
-            (formIndex + failIndex + flip) % 2 === 0 ? 2 : 3;
-
+          const nF2 = (formIndex + failIndex + flip) % 2 === 0 ? 2 : 3;
           const assigned = jsPsych.randomization.shuffle([
             ...Array(nF2).fill("f2"),
             ...Array(5 - nF2).fill("f3")
           ]);
-          group.forEach((item, i) => {
-            fillerByItem.set(item, assigned[i]);
-          });
+          group.forEach((item, i) => {fillerByItem.set(item, assigned[i]);});
         }
       }
     }
@@ -1200,8 +1186,9 @@
       throw new Error("Some stimulus image paths are missing.");
     }
 
+    // Preload only images used by this participant
     const image_files = [...new Set(
-      window.EXP2_STIMULI.flatMap(item => [
+      experimental_items.flatMap(item => [
         item.stage0_image,
         item.stage1_image,
         item.stage2_image,
@@ -1386,7 +1373,7 @@
           응답을 잘못 선택하셨다면
           <strong>“다시 선택하기”</strong>를 클릭해 주세요.
         </p>
-        <p>관심을 가져주셔서 감사합니다.</p>
+        <p>관심을 가져 주셔서 감사합니다.</p>
       </div>
     `;
   },
@@ -1399,7 +1386,7 @@
     } else {
       jsPsych.abortExperiment(`
         <div class="completion-box">
-          <p>연구에 관심을 가져주셔서 감사합니다.</p>
+          <p>연구에 관심을 가져 주셔서 감사합니다.</p>
           <p>이제 창을 닫으셔도 됩니다.</p>
         </div>
       `);
@@ -1424,7 +1411,7 @@
       type: jsPsychSurveyHtmlForm,
       preamble: `
         <div style="max-width:700px; margin:auto; text-align:center;">
-          <h3>실험에 앞서 연구 결과 분석을 위한 몇 가지 기본 정보를 입력해 주세요.<br>해당 정보는 개인을 식별할 수 없도록 처리됩니다.</h3>
+          <h3>실험에 앞서 연구 결과 분석을 위한 몇 가지 기본 정보를 입력해 주세요.</h3><p>해당 정보는 개인을 식별할 수 없도록 처리됩니다.</p>
         </div>
       `,
       html: `
@@ -1460,18 +1447,18 @@
         <div class="content">
           <h2>실험에 참여해 주셔서 감사합니다!</h2>
           <div class="inst-box">
-            <h3>실험 진행 방식에 대해 안내해 드리겠습니다: </h3>
+            <h3>실험 진행 방식을 안내해 드리겠습니다: </h3>
             <p>
-             이 실험은 문장과 그림을 통해 제시되는 내용을 확인하고, 이후 주어지는 문장이 참인지 거짓인지 판단하는 실험입니다.
+             이 실험에서는 문장과 그림을 통해 제시되는 내용을 확인하고, 이후 주어지는 문장이 참인지 거짓인지 판단해 주시면 됩니다.
             </p>
             <p>
-              문장과 그림은 여러 단계에 걸쳐 차례대로 제시됩니다. <br> 각 단계마다 <strong>새로운 문장이 추가</strong>되며, 그림에는 그때까지 <strong>진행된 상황이 반영</strong>됩니다.
+              문장과 그림은 여러 단계에 걸쳐 제시됩니다. <br> 각 단계에서는 <strong>새로운 문장이 추가</strong>되고, 그림도 <strong>상황을 반영하여</strong> 바뀝니다.
             </p>
             <p>
               문장과 그림이 제시되는 단계가 끝나면 해당 내용과 관련된 문장들이 하나씩 제시됩니다. <br> 문장을 읽고, 주어진 상황에서 각 문장이 참인지 판단해 주시면 됩니다.
             </p>
             <p>
-              먼저 두 개의 예시를 통해 실험 진행 방식을 안내해 드리겠습니다. <br> 예시를 보여드리는 단계에서 선택하시는 응답은 기록되지 않습니다.
+              다음 화면에서는 두 개의 예시를 통해 실제 실험이 어떻게 진행되는지 보여드리겠습니다. <br> 예시를 보여드리는 단계에서 선택하시는 응답은 기록되지 않습니다.
             </p>
           </div>
         </div>
@@ -1743,7 +1730,7 @@
         "먼저 칠판을 닦았고,",
         "이어서 창문을 닫았으며,",
         "책을 책장에 꽂았다.",
-        "이어 교실을 한번 둘러본 뒤,",
+        "그런 다음 교실을 한 번 둘러본 뒤,",
         "전등을 끄고,",
         "의자를 책상 아래에 넣었지만,",
         "교실 문은 닫지 않았다."
@@ -1925,26 +1912,24 @@
       save_trial_parameters: {stimulus: false},
       stimulus: `
         <div class="trial-card">
-          <h2>이제 본 실험을 시작하겠습니다</h2>
+          <h2>이제 실험을 시작하겠습니다</h2>
           <div class="begin-box">
             <p>
               본 실험에서도 예시와 동일하게 그림과 상황 설명이 차례대로 제시됩니다.
             </p>
             <p>
-              각 상황을 보고 문장이 주어진 상황에서 참인지 판단하여
-              <strong>“예”</strong> 또는
-              <strong>“아니오”</strong>를 선택해 주세요.
+              제시된 상황을 바탕으로 각 문장이 참인지 거짓인지 판단해 주세요.
+              참이라고 생각하면 <strong>"예"</strong>, 거짓이라고 생각하면 <strong>"아니오"</strong>를 선택해 주시면 됩니다.
             </p>
             <p> 
-              문장의 표현이 자연스러운지보다, 그 문장이 주어진 상황에서 참인지를 기준으로 판단해 주세요.
+              문장의 표현이 자연스러운지보다, 각 상황에서 문장의 내용이 제시된 상황과 일치하는지를 기준으로 판단해 주세요.
             </p>
             <p>
-              준비가 되셨다면 아래의
-              <strong>“실험 시작”</strong> 버튼을 클릭해 주세요. <br> 예시를 다시 확인하고 싶으시면 <strong>"다시 확인"</strong> 버튼을 클릭해주세요.
+              준비가 되셨다면 아래의 <strong>"실험 시작"</strong> 버튼을 클릭해 주세요. <br> 예시를 다시 확인하고 싶으시면 <strong>"다시 확인"</strong> 버튼을 클릭해 주세요.
             </p>
           </div>
           <p>
-            <strong> 실험 시작 후에는 응답이 기록됩니다.</strong>
+            <strong> 실험 시작 후에는 응답이 기록됩니다.</strong> <br> 점수를 매기는 시험이 아니니 본인의 직관에 따라 답변해 주시면 됩니다.
           </p>
         </div>
       `,
@@ -2105,7 +2090,7 @@
       data_string: () => "\uFEFF" + jsPsych.data.get().csv(),
       wait_message: `
         <p>응답을 저장하고 있습니다.</p>
-        <p>창을 닫지 마시고 잠시만 기다려주세요.</p>
+        <p>창을 닫지 마시고 잠시만 기다려 주세요.</p>
       `
     };
 
