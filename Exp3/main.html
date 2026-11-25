@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 3</title>
+
+  <!-- Load JsPsych -->
+  <script src="https://unpkg.com/jspsych@8.3.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-instructions@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-preload@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@2.1.0"></script>
+  <script src="https://unpkg.com/@jspsych/extension-pipe@0.2.0"></script>
+  
+  <!-- Load Stimuli -->
+  <script src="stims_exp3.js"></script>
+  <link href="https://unpkg.com/jspsych@8.3.0/css/jspsych.css" rel="stylesheet" type="text/css">
+  
+  <!-- Load Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --text-h: clamp(125px, 21dvh, 190px);
+      --image-h: clamp(200px, 38dvh, 300px);
+      --rating-h: 190px;
+      --context-h: calc(var(--text-h) + var(--image-h) + 18px);
+      --stimulus-h: calc(var(--context-h) + var(--rating-h) + 8px);
+    }
+
+    html { scrollbar-gutter: stable; }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background: #f4f6f9;
+      color: #333;
+      font-family: 'Noto Sans KR', Arial, sans-serif;
+    }
+
+    .jspsych-display-element { min-height: 100dvh; justify-content: safe center; }
+    h1, h2, h3 { color: #464545; }
+    h2 { margin: 0 0 22px; font-size: 23px; text-align: center; }
+    p { font-size: 18px; line-height: 1.6; }
+    p, h1, h2, h3 { word-break: keep-all; overflow-wrap: break-word; }
+
+    .jspsych-content-wrapper {
+      width: calc(100% - 40px);
+      max-width: 1000px;
+      margin: 8px auto;
+      padding: 12px 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,.1);
+    }
+
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 32px 36px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,.08);
+    }
+
+    .jspsych-btn {
+      margin: 5px 8px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #808080;
+      color: white;
+      font: 14px 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+    }
+
+    .jspsych-btn:hover { background: #666666; }
+    .jspsych-btn:disabled { background: #b0b0b0; cursor: default; }
+
+    #jspsych-html-button-response-btngroup {
+      position: static;
+      transform: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 48px;
+      min-height: 48px;
+      margin: 0 auto;
+    }
+
+    /* Consent */
+
+    .jspsych-content .consent p { font-size: 16px; line-height: 1.4; text-align: justify; }
+    .jspsych-content .consent h3 { font-size: 18px; line-height: 1.4; }
+
+    /* Instructions */
+
+    .jspsych-content.instructions-stage { width: 100%; max-width: 100%; }
+
+    .jspsych-content.instructions-stage .content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+      max-width: 900px;
+      min-height: var(--stimulus-h);
+      margin: 20px auto 0;
+    }
+
+    .inst-box { padding: 18px; background: lemonchiffon; border-radius: 12px; }
+    .inst-box p { text-align: justify; }
+
+    .jspsych-content.instructions-stage .jspsych-instructions-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      margin-top: 0;
+      text-align: center;
+    }
+
+    /* Start screen */
+
+    .jspsych-content.start-stage { width: 100%; max-width: 100%; }
+
+    .jspsych-content.start-stage #jspsych-html-button-response-stimulus {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: var(--stimulus-h);
+    }
+
+    .jspsych-content.start-stage .trial-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0;
+      text-align: center;
+    }
+
+    .jspsych-content.start-stage .begin-box {
+      width: min(100%, 760px);
+      padding: 30px;
+      background: #e0f2fe;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    /* Experimental trials */
+
+    .jspsych-content.norming-stage {
+      position: static;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      margin: auto !important;
+    }
+
+    .jspsych-content.norming-stage #jspsych-html-button-response-stimulus {
+      width: 100%;
+      height: var(--stimulus-h);
+    }
+
+    .jspsych-content.norming-stage main {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 900px;
+      height: var(--stimulus-h);
+      margin: 0 auto;
+      padding: 8px 12px 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .jspsych-content.norming-stage .context-display-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 0 0 var(--context-h);
+      width: 100%;
+      height: var(--context-h);
+      margin: 0 auto;
+      padding: 8px 12px;
+      border: 1px solid #dbe3ea;
+      border-radius: 12px;
+    }
+
+    .jspsych-content.norming-stage .context-text-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: safe center;
+      flex: 0 0 var(--text-h);
+      width: 100%;
+      height: var(--text-h);
+      min-height: 0;
+      margin: 0;
+      padding: 8px 12px;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+      background: #f8fafc;
+      border-radius: 8px;
+      text-align: justify;
+    }
+
+    .jspsych-content.norming-stage .context-text-line {
+      margin: 3px 0;
+      font-size: clamp(16px, 2.4dvh, 19px);
+      line-height: 1.5;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .jspsych-content.norming-stage .hidden-text { visibility: hidden; }
+
+    .jspsych-content.norming-stage .norming-image {
+      display: block;
+      flex: 0 0 var(--image-h);
+      align-self: center;
+      width: 100%;
+      max-width: 600px;
+      height: var(--image-h);
+      min-height: 0;
+      margin: 0 auto;
+      object-fit: contain;
+    }
+
+    /* Rating screen */
+
+    .jspsych-content.norming-rating-stage .time-intro {
+      margin: 7px 0 3px;
+      font-size: 18px;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    .jspsych-content.norming-rating-stage .question {
+      margin: 0 0 12px;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.35;
+      text-align: center;
+      word-break: keep-all;
+    }
+
+    /* Slider */
+
+    .slider-wrap { width: 100%; max-width: 650px; margin: 0 auto; }
+    .jspsych-content.norming-rating-stage .slider-wrap { flex: 0 0 auto; margin: auto; }
+
+    .slider-wrap input[type="range"] {
+      appearance: none;
+      -webkit-appearance: none;
+      display: block;
+      width: 100%;
+      height: 8px;
+      margin: 18px 0;
+      border-radius: 10px;
+      cursor: pointer;
+      background: linear-gradient(to right,
+        #808080 0%, #808080 var(--slider-progress, 0%),
+        #e5e7eb var(--slider-progress, 0%), #e5e7eb 100%);
+    }
+
+    .slider-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border: 2px solid #808080;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12);
+      opacity: 0;
+    }
+
+    .slider-wrap input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #808080;
+      border-radius: 50%;
+      background: white;
+      opacity: 0;
+    }
+
+    .slider-wrap.answered input[type="range"]::-webkit-slider-thumb {opacity: 1;}
+    .slider-wrap.answered input[type="range"]::-moz-range-thumb {opacity: 1;}
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      color: #555;
+      font-size: 13px;
+    }
+
+    /* Progress bar */
+
+    #jspsych-progressbar-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      margin: 0;
+      padding: 5px;
+      background: #f8fafc;
+    }
+
+    #jspsych-progressbar-outer {
+      order: 1;
+      flex: 0 1 1300px;
+      width: auto;
+      height: 12px;
+      margin: 0;
+      background: #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #jspsych-progressbar-inner {
+      height: 100%;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #cbd5e1, #94a3b8 50%, #64748b);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,.45);
+      transition: width .4s ease;
+    }
+
+    #jspsych-progressbar-container > span {
+      order: 2;
+      min-width: 85px;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* Responsive layout */
+
+    @media (max-height: 700px) {
+      :root {
+        --text-h: clamp(105px, 20dvh, 140px);
+        --image-h: clamp(130px, 29dvh, 200px);
+        --rating-h: 170px;
+      }
+
+      .jspsych-content-wrapper { margin: 4px auto; padding: 6px 20px 4px; }
+      .jspsych-content.norming-stage .context-text-line { font-size: 16px; line-height: 1.35; }
+      .jspsych-content.norming-rating-stage .time-intro { font-size: 17px; }
+      .jspsych-content.norming-rating-stage .question { margin-bottom: 8px; font-size: 18px; }
+    }
+
+    @media (max-width: 768px) {
+      .jspsych-content-wrapper {
+        width: calc(100% - 12px);
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .jspsych-btn { min-width: 92px; min-height: 44px; padding: 12px 18px; font-size: 16px; }
+      .jspsych-content.norming-stage main { padding-left: 4px; padding-right: 4px; }
+      .jspsych-content.norming-stage .context-display-box { padding-left: 6px; padding-right: 6px; }
+    }
+
+    @media (max-width: 600px) {
+      :root { --rating-h: 220px; }
+      .jspsych-content.norming-rating-stage .question { margin-bottom: 8px; font-size: 18px; }
+    }
+
+    @media (max-width: 600px) and (max-height: 700px) {
+      :root { --rating-h: 205px; }
+      .jspsych-content.norming-stage .context-text-line { font-size: 14px; line-height: 1.3; }
+    }
+
+  </style>
+
+  </head>
+  <body>
+  <script>
+    let totalItems = 1;
+    let experimentCompleted = false;
+    const LOCAL_DEBUG = false;
+    const PAYMENT_FORM_URL = "https://stanforduniversity.qualtrics.com/jfe/form/SV_eqy8EZSNgFDqM3I";
+    const jsPsych = initJsPsych({
+      extensions: LOCAL_DEBUG ? [] : [
+        {
+          type: jsPsychExtensionPipe,
+          params: {
+            experiment_id: "SF89u8zNJw0i",
+            filename: () => `Exp3_${subject_id}.csv`,
+            wait_message: `
+              <p>실험 응답을 저장하고 있습니다.</p>
+              <p>창을 닫지 말아 주세요.</p>
+            `,
+            on_save: function(result) {
+              if (!experimentCompleted) return;
+                const paymentURL = new URL(PAYMENT_FORM_URL);
+                paymentURL.searchParams.set("subject_id", subject_id);
+              jsPsych.getDisplayElement().innerHTML = `
+                <main>
+                  <h2>실험이 종료되었습니다.</h2>
+                  <p>${result.ok
+                    ? "실험 응답이 저장되었습니다."
+                    : "응답 저장 중 문제가 발생했습니다. 참여자 ID를 보관하고 연구 담당자에게 연락해 주세요."
+                  }</p>
+                  <p>실험에 참여해 주셔서 감사합니다!</p>
+                  <p>사례비 지급을 위해 아래 버튼을 클릭하여 정보를 입력해 주세요.</p>
+                  <a href="${paymentURL.href}" class="jspsych-btn"
+                    style="display:inline-block;text-decoration:none;">
+                    정보 입력
+                  </a>
+                </main>
+              `;
+            }
+          }
+        }
+      ],
+      show_progress_bar: true,
+      auto_update_progress_bar: false,
+      message_progress_bar: progress =>
+        `${Math.round(progress * totalItems)}/${totalItems}`
+    });
+    const experiment_start_time = performance.now();
+    // const DATAPIPE_EXPERIMENT_ID = "0gKwd3GFsXG5"; // Kept for future deployment; not used in debug
+    const subject_id = jsPsych.randomization.randomID(10);
+
+    if (!Array.isArray(window.EXP3_STIMULI) || window.EXP3_STIMULI.length === 0) {throw new Error("stims_exp3.js must define window.EXP3_STIMULI.");}
+
+    function getDeviceType() {
+      const ua = navigator.userAgent;
+      if (/iPad/i.test(ua) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ||
+          (/Android/i.test(ua) && !/Mobile/i.test(ua))) return "tablet";
+      if (/iPhone|iPod|Android.*Mobile|Windows Phone|Mobi/i.test(ua)) return "mobile";
+      return "computer";
+    }
+
+    jsPsych.data.addProperties({
+      subject_id,
+      experiment: "Exp3",
+      device_type: getDeviceType()
+    });
+
+    // Context ends *before* the failure, so do not show critical2 for
+    // fail2 or critical3 for fail3. Neutralize the sentence-final
+    // "-지만," because it would reveal that a contrast is coming.
+    function buildNormingContext(stim) {
+      const background = stim.stage0_sentence;
+      const priorSuccesses = [
+        stim.stage1_sentence,
+        stim.stage2_sentence,
+        stim.stage3_sentence
+      ].join(" ");
+      const targetSuccesses = [
+        stim.critical0_sentence.replace(/,\s*$/, ""),
+        stim.critical1_sentence,
+        ...(stim.fail === 3 ? [stim.critical2_sentence] : [])
+      ];
+      const lastIndex = targetSuccesses.length - 1;
+      targetSuccesses[lastIndex] = targetSuccesses[lastIndex]
+        .replace(/지만,?\s*$/, "다.")
+        .replace(/,\s*$/, ".");
+      return [background, priorSuccesses, targetSuccesses.join(" ")];
+    }
+
+    
+    function buildNormingStages(stim) {
+      const fail = Number(stim.fail);
+      if (fail !== 2 && fail !== 3) {
+        throw new Error(`Unsupported fail position for ${stim.item}: ${stim.fail}`);
+      }
+      const stageKeys = [
+        "stage0", "stage1", "stage2", "stage3", "critical0", "critical1",
+        ...(fail === 3 ? ["critical2"] : [])
+      ];
+      // Prepare the complete final text from the beginning
+      const targetSentences = [
+        stim.critical0_sentence.replace(/,\s*$/, ""),
+        stim.critical1_sentence,
+        ...(fail === 3 ? [stim.critical2_sentence] : [])
+      ];
+      const lastIndex = targetSentences.length - 1;
+      targetSentences[lastIndex] = targetSentences[lastIndex]
+        .replace(/지만,?\s*$/, "다.")
+        .replace(/,\s*$/, ".");
+
+      // Three lines, all occupying their final positions
+      const lines = [
+        [
+          { text: stim.stage0_sentence, revealAt: 0 }
+        ],
+        [
+          { text: stim.stage1_sentence, revealAt: 1 },
+          { text: stim.stage2_sentence, revealAt: 2 },
+          { text: stim.stage3_sentence, revealAt: 3 }
+        ],
+        targetSentences.map((text, i) => ({
+          text,
+          revealAt: i + 4
+        }))
+      ];
+
+      return stageKeys.map((stageKey, stageIndex) => {
+        const image = stim[`${stageKey}_image`];
+        if (!image) {throw new Error(`Missing ${stageKey}_image for ${stim.item} fail${fail}`);}
+
+        // Hidden sentences still occupy their final space
+        const contextHTML = lines.map(parts => `
+          <p class="context-text-line">
+            ${parts.map(part => `
+              <span class="${
+                stageIndex >= part.revealAt ? "" : "hidden-text"
+              }">${escapeHTML(part.text)}</span>
+            `).join(" ")}
+          </p>
+        `).join("");
+        return {
+          stageKey,
+          image,
+          contextHTML
+        };
+      });
+    }
+
+    function escapeHTML(str) {
+      return String(str).replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    const timeline = [];
+
+    //Balanced Randomization
+    const selectedItems = [];
+    for (const type of ["PE", "BASE"]) {
+      // Group fail2 and fail3 by exact item ID
+      const itemGroups = new Map();
+      window.EXP3_STIMULI.filter(stim => stim.type === type).forEach(stim => {
+          const itemId = String(stim.item);
+          if (!itemGroups.has(itemId)) {itemGroups.set(itemId, []);}
+          itemGroups.get(itemId).push(stim);
+        });
+      // Only use items with both fail2 and fail3
+      const availableItems = [...itemGroups.entries()].filter(
+        ([itemId, versions]) =>
+          versions.some(v => Number(v.fail) === 2) &&
+          versions.some(v => Number(v.fail) === 3)
+      );
+      if (availableItems.length < 8) {
+        throw new Error(`Need at least 8 items for ${type}, but found ${availableItems.length}.`);
+      }
+      // Randomly choose 8 different items for this context type
+      const chosenItems = jsPsych.randomization.shuffle(availableItems).slice(0, 8);
+      // Assign fail2 to 4 items and fail3 to the other 4
+      chosenItems.forEach(([itemId, versions], index) => {
+        const selectedFail = index < 4 ? 2 : 3;
+        const selectedVersion = versions.find(v => Number(v.fail) === selectedFail);
+        selectedItems.push(selectedVersion);
+      });
+    }
+    
+    //Randomization
+    function shuffleNoConsecutiveCondition(items) {
+      let shuffled;
+      let attempts = 0;
+      let valid = false;
+      while (!valid && attempts < 10000) {
+        shuffled = jsPsych.randomization.shuffle([...items]);
+        attempts++;
+        valid = shuffled.every((item, index) => {
+          if (index === 0) return true;
+          const previous = shuffled[index - 1];
+          // Rule 1: No identical context + fail consecutively
+          if (item.type === previous.type &&Number(item.fail) === Number(previous.fail)) {
+            return false;
+          }
+          // Rule 2: No 3 consecutive PE or BASE and fail2 or fail3
+          if (index >= 2) {
+            const twoBack = shuffled[index - 2];
+            if (item.type === previous.type && item.type === twoBack.type) {
+              return false;
+            }
+            if (Number(item.fail) === Number(previous.fail) &&
+                Number(item.fail) === Number(twoBack.fail)) {
+              return false;
+            }
+          }
+          return true;
+        });
+      }
+      if (!valid) {throw new Error("Could not find a valid randomization after 10000 attempts.");}
+      return shuffled;
+    }
+
+    const experimental_items = shuffleNoConsecutiveCondition(selectedItems);
+    const controlItems = jsPsych.randomization.shuffle(window.EXP3_CONTROLS);
+
+    totalItems = experimental_items.length + controlItems.length;
+
+    // Preload only the images that this participant will see.
+    const normingStagesByItem = experimental_items.map(item => buildNormingStages(item));
+    const imageFiles = [...new Set([
+      ...normingStagesByItem.flatMap(stages => stages.map(stage => stage.image)),
+      ...controlItems.flatMap(control => control.images)
+    ])];
+
+    timeline.push({
+      type: jsPsychPreload,
+      images: imageFiles,
+      record_data: false
+    });
+
+     // Randomize control positions
+    const controlPositions = [
+      jsPsych.randomization.sampleWithoutReplacement([4, 5, 6], 1)[0],
+      jsPsych.randomization.sampleWithoutReplacement([13, 14, 15], 1)[0]
+    ];
+
+    //Debug Table
+    const DEBUG_MODE = false;
+    let debugTrial = null;
+    if (DEBUG_MODE) {
+      const debugRows = [];
+    let debugOrder = 0;
+    let debugControlIndex = 0;
+    experimental_items.forEach(item => {
+      if (controlPositions.includes(debugOrder + 1)) {
+        const control = controlItems[debugControlIndex++];
+        debugRows.push({
+          order: ++debugOrder,
+          lexicalSet: "—",
+          item: control.id,
+          context: "CONTROL",
+          fail: "—",
+          condition: "CONTROL"
+        });
+      }
+      debugRows.push({
+        order: ++debugOrder,
+        lexicalSet: String(item.item),
+        item: item.item,
+        context: item.type,
+        fail: item.fail,
+        condition: `${item.type}_fail${item.fail}`
+      });
+    });
+      // Count items in each condition
+      const conditionCounts = {
+        PE_fail2: debugRows.filter(r => r.condition === "PE_fail2").length,
+        PE_fail3: debugRows.filter(r => r.condition === "PE_fail3").length,
+        BASE_fail2: debugRows.filter(r => r.condition === "BASE_fail2").length,
+        BASE_fail3: debugRows.filter(r => r.condition === "BASE_fail3").length
+      };
+      // Check lexical-set duplication
+      const lexicalSetIds = debugRows
+  .filter(r => r.context !== "CONTROL")
+  .map(r => r.lexicalSet);
+
+      const noDuplicates = new Set(lexicalSetIds).size === lexicalSetIds.length;
+      const balanced = Object.values(conditionCounts).every(n => n === 4);
+      console.table(debugRows);
+      console.log("Condition counts:", conditionCounts);
+      console.log("No duplicate lexical sets:", noDuplicates);
+      const tableRows = debugRows.map(row => `
+        <tr>
+          <td>${row.order}</td>
+          <td>${row.lexicalSet}</td>
+          <td>${row.item}</td>
+          <td>${row.context}</td>
+          <td>${row.context === "CONTROL" ? "—" : `fail${row.fail}`}</td>
+          <td>${row.condition}</td>
+        </tr>
+      `).join("");
+      debugTrial = {
+        type: jsPsychHtmlButtonResponse,
+        record_data: false,
+        stimulus: `
+          <div style="max-width:900px;margin:20px auto;text-align:center;">
+            <h2>DEBUG: Exp3 Randomization</h2>
+            <p>
+              Total trials: ${debugRows.length}
+            </p>
+            <p>
+              PE-fail2: ${conditionCounts.PE_fail2} |
+              PE-fail3: ${conditionCounts.PE_fail3}
+            </p>
+            <p>
+              BASE-fail2: ${conditionCounts.BASE_fail2} |
+              BASE-fail3: ${conditionCounts.BASE_fail3}
+            </p>
+            <p style="color:${balanced ? "#15803d" : "#dc2626"};">
+              Condition balance:
+              <strong>${balanced ? "PASS" : "FAIL"}</strong>
+            </p>
+            <p style="color:${noDuplicates ? "#15803d" : "#dc2626"};">
+              No repeated item IDs:
+              <strong>${noDuplicates ? "PASS" : "FAIL"}</strong>
+            </p>
+            <div style="max-height:55vh;overflow:auto;">
+              <table style="width:100%; border-collapse:collapse; font-size:14px; text-align:center;">
+                <thead style="background:#e2e8f0;">
+                  <tr>
+                    <th>Order</th>
+                    <th>Lexical set</th>
+                    <th>Item</th>
+                    <th>Context</th>
+                    <th>Fail</th>
+                    <th>Condition</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `,
+        choices: ["실험 시작"]
+      };
+      
+    }
+
+    // Control trials: 7 visual stages + 1 rating stage
+    function addControlItem(control, completedCount, targetTimeline = timeline, isPractice = false) {
+      let currentRating = null;
+     if (control.sentences.length !== control.images.length) {throw new Error(`Sentence/image count mismatch for ${control.id}`);}
+      // Three text lines, matching the critical trials
+      const lines = [
+        [{text: control.sentences[0], revealAt: 0}],
+        control.sentences.slice(1, 4).map((text, i) => ({text, revealAt: i + 1})),
+        control.sentences.slice(4).map((text, i) => ({text, revealAt: i + 4}))
+      ];
+      const stages = control.images.map((image, stageIndex) => {
+        if (!image) {throw new Error(`Missing control image: ${control.id}, stage ${stageIndex}`);}
+        const contextHTML = lines.map(parts => `
+          <p class="context-text-line">
+            ${parts.map(part => `
+              <span class="${stageIndex >= part.revealAt ? "" : "hidden-text"}">
+                ${escapeHTML(part.text)}
+              </span>
+            `).join(" ")}
+          </p>
+        `).join("");
+        return {image, contextHTML};
+      });
+
+      // 7 picture + sentence screens
+      stages.forEach(stage => {
+        targetTimeline.push({
+          type: jsPsychHtmlButtonResponse,
+          record_data: false,
+          stimulus: `
+            <main>
+              <div class="context-display-box">
+                <div class="context-text-container">
+                  ${stage.contextHTML}
+                </div>
+                <img class="norming-image" src="${escapeHTML(stage.image)}">
+              </div>
+            </main>
+          `,
+          choices: ["다음"],
+          css_classes: ["norming-stage", "norming-image-stage"]
+        });
+      });
+
+      // Rating screen
+      const lastStage = stages[stages.length - 1];
+      targetTimeline.push({
+        type: jsPsychHtmlButtonResponse,
+        record_data: !isPractice,
+        save_trial_parameters: {stimulus: false},
+        stimulus: `
+          <main>
+            <div class="context-display-box">
+              <div class="context-text-container">
+                ${lastStage.contextHTML}
+              </div>
+              <img class="norming-image" src="${escapeHTML(lastStage.image)}">
+            </div>
+            <p class="time-intro">지금까지의 상황을 바탕으로,</p>
+            <p class="question">${escapeHTML(control.question)}</p>
+            <div class="slider-wrap">
+              <input type="range" id="likelihood-slider"
+                min="0" max="100" step="1" value="50"
+                aria-label="사건이 일어날 가능성">
+              <div class="slider-labels">
+                <span>매우 낮음</span>
+                <span></span>
+                <span>매우 높음</span>
+              </div>
+            </div>
+          </main>
+        `,
+        choices: ["다음"],
+        css_classes: ["norming-stage", "norming-rating-stage"],
+        data: {
+          trial_stage: isPractice ? "practice" : "control",
+          trial_order: isPractice ? null : completedCount,
+          control_id: isPractice ? null : control.id,
+          control_expected: isPractice ? null : control.expected,
+          norming_question: control.question,
+          context_shown: control.sentences.join(" "),
+          final_image: lastStage.image
+        },
+        on_load: function() {
+          const slider = document.querySelector("#likelihood-slider");
+          const sliderWrap = document.querySelector(".slider-wrap");
+          const button = document.querySelector("#jspsych-html-button-response-btngroup button");
+          if (!slider || !sliderWrap || !button) {throw new Error("Could not find control slider or button.");}
+          button.disabled = true;
+          function updateRating() {
+            currentRating = Number(slider.value);
+            slider.style.setProperty("--slider-progress", `${currentRating}%`);
+            sliderWrap.classList.add("answered");
+            button.disabled = false;
+          }
+          slider.addEventListener("pointerdown", function(event) {
+            const rect = slider.getBoundingClientRect();
+            const position = (event.clientX - rect.left) / rect.width;
+            slider.value = Math.max(0, Math.min(100, Math.round(position * 100)));
+            updateRating();
+          });
+          slider.addEventListener("input", updateRating);
+        },
+        on_finish: function(data) {
+          data.all_world_rating_0_100 = currentRating;
+          if (!isPractice) {
+            jsPsych.progressBar.progress = completedCount / totalItems;
+          }
+        }
+      });
+    }
+
+    let currentOrder = 0;
+    let nextControlIndex = 0;
+
+    experimental_items.forEach((item, index) => {
+    // Insert a control at its randomized position
+    if (controlPositions.includes(currentOrder + 1)) {
+      currentOrder++;
+      addControlItem(
+        controlItems[nextControlIndex],
+        currentOrder
+      );
+      nextControlIndex++;
+    }
+    // Position of the current critical trial
+    currentOrder++;
+    const trialOrder = currentOrder;
+    const stages = normingStagesByItem[index];
+    const contextLines = buildNormingContext(item);
+    const NORMING_QUESTION = item.norming_question;
+    let currentRating = null;
+
+      // Show the story step by step, as in Exp2.
+      // None of these screens reveal the failure.
+      stages.forEach((stage, stageIndex) => {
+        timeline.push({
+          type: jsPsychHtmlButtonResponse,
+          record_data: false,
+          stimulus: `
+            <main>
+              <div class="context-display-box">
+               <div class="context-text-container">
+                ${stage.contextHTML}
+              </div>
+                <img class="norming-image" src="${escapeHTML(stage.image)}">
+              </div>
+            </main>
+          `,
+          choices: ["다음"],
+          css_classes: ["norming-stage", "norming-image-stage"]
+        });
+      });
+
+      // Once the story is shown, keep the last picture visible
+      // while asking for the 7-point likelihood judgment.
+      const lastImage = stages[stages.length - 1].image;
+
+      timeline.push({
+        type: jsPsychHtmlButtonResponse,
+        save_trial_parameters: { stimulus: false },
+        stimulus: `
+          <main>
+            <div class="context-display-box">
+             <div class="context-text-container">
+              ${stages[stages.length - 1].contextHTML}
+            </div>
+              <img class="norming-image" src="${escapeHTML(lastImage)}">
+            </div>
+            <p class="time-intro">지금까지의 상황을 바탕으로,</p>
+            <p class="question">앞으로 ${escapeHTML(NORMING_QUESTION)} 가능성이 얼마나 높을까요?</p>
+            <div class="slider-wrap">
+            <input type="range" id="likelihood-slider"
+                  min="0" max="100" step="1" value="50"
+                  aria-label="사건이 일어날 가능성">
+            <div class="slider-labels">
+              <span>매우 낮음</span>
+              <span></span>
+              <span>매우 높음</span>
+            </div>
+          </div>
+          </main>
+        `,
+        choices: ["다음"],
+        css_classes: ["norming-stage", "norming-rating-stage"],
+        data: {
+          trial_stage: "norming",
+          trial_order: trialOrder,
+          item: item.item,
+          context_type: item.type,
+          fail_position: item.fail,
+          norming_question: NORMING_QUESTION,
+          context_shown: contextLines.join(" "),
+          final_image: lastImage
+        },
+        // on_load: function() {
+        //   const radios = document.querySelectorAll('input[name="likelihood"]');
+        //   const button = document.querySelector("#jspsych-html-button-response-btngroup button");
+        //   if (!radios.length || !button) {throw new Error("Could not find likelihood options or button.");}
+        //   button.disabled = true;
+        //   radios.forEach(radio => {
+        //     radio.addEventListener("change", function() {
+        //       currentRating = Number(radio.value);
+        //       button.disabled = false;
+        //     });
+        //   });
+        // },
+        // on_finish: function(data) {data.all_world_rating_7pt = currentRating;jsPsych.progressBar.progress = (index + 1) / totalItems;}
+       on_load: function() {
+        const slider = document.querySelector("#likelihood-slider");
+        const sliderWrap = document.querySelector(".slider-wrap");
+        const button = document.querySelector("#jspsych-html-button-response-btngroup button");
+        if (!slider || !sliderWrap || !button) {throw new Error("Could not find slider or button.");}
+        button.disabled = true;
+        function updateRating() {
+          currentRating = Number(slider.value);
+          slider.style.setProperty("--slider-progress", `${currentRating}%`);
+          sliderWrap.classList.add("answered");
+          button.disabled = false;
+        }
+        slider.addEventListener("pointerdown", function(event) {
+          const rect = slider.getBoundingClientRect();
+          const position = (event.clientX - rect.left) / rect.width;
+          slider.value = Math.max(0, Math.min(100, Math.round(position * 100)));
+          updateRating();
+        });
+        slider.addEventListener("input", updateRating);
+      },
+      on_finish: function(data) {
+        data.all_world_rating_0_100 = currentRating;
+        jsPsych.progressBar.progress = trialOrder / totalItems;
+      }
+      });
+    });
+
+    // Consent
+    const consent = {
+      type: jsPsychHtmlButtonResponse,
+      record_data: false,
+      stimulus: `
+        <div class="consent">
+          <h2 style="text-align:center;">연구 참여 안내 및 동의</h2>
+          <h3 style="text-align:center;">언어 이해 및 해석에 관한 행동 연구 (IRB-89118)</h3>
+          <p style="text-align:center;"><strong>연구 개요</strong></p>
+          <p>
+            본 연구는 사람들이 문장을 어떻게 이해하고 해석하는지 알아보기 위한 연구입니다.
+            연구에 참여하시면 문장과 그림을 확인하고, 관련된 질문에 답하게 됩니다.
+            연구 참여는 자발적이며, 원하실 경우 언제든지 참여를 중단하실 수 있습니다.
+            연구에 참여하지 않거나 참여 도중 중단하더라도 어떠한 불이익도 없습니다.
+          </p>
+          <p style="text-align:center;"><strong>소요 시간</strong></p>
+            <p>약 10분이 소요될 예정입니다.</p>
+          <p style="text-align:center;"><strong>참여 보상</strong></p>
+          <p>
+            연구 참여에 대한 보상으로 2,000원을 지급해 드립니다.
+            실험 종료 후, 보상 지급을 위해 계좌 정보 및 연락처를 수집할 예정입니다.
+            해당 정보는 보상 지급 이외의 용도로 사용되지 않으며, 목적 달성 후 즉시 폐기됩니다.
+          </p>
+          <p style="text-align:center;"><strong>개인정보 및 비밀유지</strong></p>
+          <p>
+            본 연구 참여로 예상되는 위험은 일상생활에서 겪는 수준을 넘지 않습니다.
+            연구 과정에서 수집된 응답과 성별, 나이 등의 정보는 참여자를 식별할 수 없도록 처리하고 관련 규정에 따라 보호합니다.
+            연구 결과를 바탕으로 작성되는 보고서나 논문 등에는 개인을 식별할 수 있는 정보가 포함되지 않습니다.
+          </p>
+          <p style="text-align:center;"><strong>연구 관련 문의:</strong></p>
+          <p>
+            연구 내용이나 절차, 연구 참여로 인한 위험 및 이점에 대한 질문, 혹은 연구와 관련된 우려 또는 불만 사항이 있는 경우
+            연구책임자 홍준선 (junseonh@stanford.edu, +1-650-509-2164, 010-7227-3912)에게 연락하시기 바랍니다.
+          </p>
+          <h3>연구 참여에 동의하시는 경우, 아래의 “동의하고 계속”을 클릭해 주십시오. <br> 동의하지 않으시는 경우에는 창을 닫으시면 됩니다.</h3>
+        </div>
+      `,
+      choices: ["동의하고 계속"]
+    };
+
+    // timeline.push(device_notice);
+    timeline.splice(1, 0, consent);
+
+    // Eligibility
+    let eligibility_passed = false;
+    let retry_eligibility = false;
+    let eligibility_answers = null;
+
+    const eligibility_check = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: `
+        <div style="max-width:700px; margin:auto; text-align:center;">
+          <h3>연구 참여에 동의해 주셔서 감사합니다.</h3>
+          <p>본 연구는 이중언어 화자가 아닌 만 18세 이상의 한국어 모국어 화자를 대상으로 합니다.</p>
+        </div>
+      `,
+      html: `
+        <div style="max-width:700px; margin:auto;">
+          <div style="margin:30px 0;">
+            <p style="text-align:center;"><strong>1. 만 18세 이상이신가요?</strong></p>
+            <div style="text-align:center;">
+              <label style="margin-right:25px;"><input type="radio" name="age_18" value="yes" required> 예</label>
+              <label><input type="radio" name="age_18" value="no"> 아니요</label>
+            </div>
+          </div>
+          <div style="margin:30px 0;">
+            <p style="text-align:center;"><strong>2. 한국어를 어린 시절부터 모국어로 사용해 오셨나요?</strong></p>
+            <div style="text-align:center;">
+              <label style="margin-right:25px;"><input type="radio" name="native_korean" value="yes" required> 예</label>
+              <label><input type="radio" name="native_korean" value="no"> 아니요</label>
+            </div>
+          </div>
+          <div style="margin:30px 0;">
+            <p style="text-align:center;">
+              <strong>
+                3. 성장 과정에서 (만 18세 이전) 한국어 외의 다른 언어를 가정이나 일상생활에서 정기적으로 사용한 경험이 있으신가요?
+              </strong>
+            </p>
+            <p style="font-size:15px;text-align:center;color:#64748b;">
+              학교나 학원에서의 외국어 수업이나 단기간의 해외 체류 경험(어학연수, 교환학생 등)은 제외하고 답변해 주세요.
+            </p>
+            <div style="text-align:center;">
+              <label style="margin-right:25px;"><input type="radio" name="early_bilingual" value="yes" required> 예 </label>
+              <label><input type="radio" name="early_bilingual" value="no"> 아니오 </label>
+            </div>
+          </div>
+        </div>
+      `,
+      button_label: "계속",
+      data: {phase: "eligibility"},
+      on_finish: function(data) {
+        eligibility_answers = { ...data.response };
+        eligibility_passed =
+          data.response.age_18 === "yes" &&
+          data.response.native_korean === "yes" &&
+          data.response.early_bilingual === "no";
+        retry_eligibility = false;
+        data.early_bilingual = data.response.early_bilingual;
+        data.eligibility_passed = eligibility_passed;
+      }
+    };
+    const eligibility_failed_trial = {
+  type: jsPsychHtmlButtonResponse,
+
+  stimulus: function() {
+    const answers = eligibility_answers || {};
+    const showAnswer = (value) => {
+      if (value === "yes") return "예";
+      if (value === "no") return "아니요";
+      return "미응답";
+    };
+    return `
+      <div class="completion-box">
+        <p>
+          죄송하지만 본 연구의 참여 조건에 해당하지 않습니다. <br>
+          아래에서 선택하신 응답을 확인해 주세요.
+        </p>
+        <div style="text-align:left; max-width:650px; margin:25px auto; padding:20px; background:#f8fafc; border-radius:10px;">
+          <p>
+            <strong>1. 만 18세 이상이신가요?</strong>
+          </p>
+          <p>
+            <strong>${showAnswer(answers.age_18)}</strong>
+          </p>
+          <hr>
+          <p>
+            <strong>
+              2. 한국어를 어린 시절부터 모국어로 사용해 오셨나요?
+            </strong>
+          </p>
+          <p>
+            <strong>${showAnswer(answers.native_korean)}</strong>
+          </p>
+          <hr>
+          <p>
+            <strong>
+              3. 성장 과정에서 (만 18세 이전) 한국어 외의 다른 언어를 가정이나 일상생활에서 정기적으로 사용한 경험이 있으신가요?
+            </strong>
+          </p>
+          <p>
+            <strong>${showAnswer(answers.early_bilingual)}</strong>
+          </p>
+        </div>
+        <p>
+          응답을 잘못 선택하셨다면
+          <strong>“다시 선택하기”</strong>를 클릭해 주세요.
+        </p>
+        <p>관심을 가져 주셔서 감사합니다.</p>
+      </div>
+    `;
+  },
+
+  choices: ["다시 선택하기", "실험 종료"],
+
+  on_finish: function(data) {
+    if (data.response === 0) {
+      retry_eligibility = true;
+    } else {
+      jsPsych.abortExperiment(`
+        <div class="completion-box">
+          <p>연구에 관심을 가져 주셔서 감사합니다.</p>
+          <p>이제 창을 닫으셔도 됩니다.</p>
+        </div>
+      `);
+    }
+  }
+};
+
+    const eligibility_failed = {
+      timeline: [eligibility_failed_trial],
+      conditional_function: function() {return !eligibility_passed;}
+    };
+
+    const eligibility_loop = {
+      timeline: [eligibility_check, eligibility_failed],
+      loop_function: function() {return retry_eligibility;}
+    };
+
+    timeline.splice(2, 0, eligibility_loop);
+
+    // Demographics
+    const demographics = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: `
+        <div style="max-width:700px; margin:auto; text-align:center;">
+          <h3>실험에 앞서 연구 결과 분석을 위한 몇 가지 기본 정보를 입력해 주세요.</h3><p>해당 정보는 개인을 식별할 수 없도록 처리됩니다.</p>
+        </div>
+      `,
+      html: `
+        <div style="max-width:700px; margin:auto;">
+          <div style="margin:30px 0; text-align:center;">
+            <p><strong>1. 만 나이를 입력해 주세요.</strong></p>
+            <input type="number" name="age" min="18" max="120" required style="width:80px;padding:8px;font-size:16px;text-align:center;">
+          </div>
+          <div style="margin:30px 0; text-align:center;">
+            <p><strong>2. 성별을 선택해 주세요.</strong></p>
+            <label style="margin-right:20px;"><input type="radio" name="gender" value="male" required> 남성</label>
+            <label style="margin-right:20px;"><input type="radio" name="gender" value="female"> 여성</label>
+            <label style="margin-right:20px;"><input type="radio" name="gender" value="other"> 기타</label>
+            <label><input type="radio" name="gender" value="prefer_not_to_say"> 밝히고 싶지 않음</label>
+          </div>
+        </div>
+      `,
+      button_label: "계속",
+      data: {phase: "demographics"},
+      on_finish: function(data) {
+        data.age = parseInt(data.response.age, 10);
+        data.gender = data.response.gender;
+      }
+    };
+
+    timeline.splice(3, 0, demographics);
+
+    // Instructions
+    const instructions = {
+      type: jsPsychInstructions,
+      record_data: false,
+      css_classes: ["instructions-stage"],
+      pages: [`
+        <div class="content">
+          <h2>실험에 참여해 주셔서 감사합니다!</h2>
+          <div class="inst-box">
+            <h3>진행 방식을 안내 해 드리겠습니다.</h3>
+            <p>
+              이 실험에서는 문장과 그림을 통해 여러 가지 상황이 제시됩니다. 
+              문장과 그림은 여러 단계에 걸쳐 제시되며, 각 단계마다 <strong>새로운 문장이 추가</strong>되고 그림도 <strong>상황의 변화에 따라</strong> 바뀝니다.
+            </p>
+            <p>
+              상황 설명이 모두 끝나면 해당 상황과 관련된 질문이 제시됩니다. 제시된 상황을 바탕으로 질문에서 묻는 일이 <strong>일어날 가능성</strong>을 슬라이더로 표시해 주세요. 
+              슬라이더의 왼쪽 끝은 가능성이 매우 낮음을, 오른쪽 끝은 가능성이 매우 높음을 나타냅니다. 이를 기준으로 적절한 위치를 선택해 주세요.
+            </p>
+            <div class="slider-wrap answered" style="margin: 20px auto;">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="50"
+                style="--slider-progress: 50%;"
+                oninput="this.style.setProperty('--slider-progress', this.value + '%')"
+              >
+              <div class="slider-labels">
+                <span>매우 낮음</span>
+                <span></span>
+                <span>매우 높음</span>
+              </div>
+              <p> 다음 화면에서 예시를 하나 보여드리겠습니다. 이 과정에서의 응답은 기록되지 않습니다. </p>
+            </div>
+          </div>
+        </div>
+      `],
+      show_clickable_nav: true,
+      button_label_next: "다음",
+      button_label_previous: "이전",
+    };
+
+    timeline.splice(4, 0, instructions);
+
+    //Start
+    timeline.splice(5, 0, {
+      type: jsPsychHtmlButtonResponse,
+      record_data: false,
+      stimulus: `
+        <div class="trial-card">
+          <h2>이제 실험을 시작하겠습니다.</h2>
+          <div class="begin-box">
+            <p>정해진 정답이나 시간 제한은 없으므로, 제시된 상황을 충분히 살펴보신 후 생각하시는 대로 응답해 주시면 됩니다.</p>
+            <p>준비가 되시면 아래의 <strong>시작</strong> 버튼을 클릭해 주세요.</p>
+          </div>
+        </div>
+      `,
+      choices: ["시작"],
+      css_classes: ["start-stage"]
+    });
+
+    const practiceItem = {
+      id: "PRACTICE",
+      expected: null,
+      sentences: [
+        "선생님이 교실을 정리하기 시작했다.",
+        "먼저 칠판을 닦았고,",
+        "이어서 창문을 닫았으며,",
+        "책을 책장에 꽂았다.",
+        "그런 다음 교실을 한 번 둘러본 뒤,",
+        "전등을 끄고,",
+        "의자를 책상 아래에 넣고",
+        "교실 문도 닫았다."
+      ],
+      images: [
+        "stims/PRACTICE/practice_classroom_0.png",
+        "stims/PRACTICE/practice_classroom_1.png",
+        "stims/PRACTICE/practice_classroom_2.png",
+        "stims/PRACTICE/practice_classroom_3.png",
+        "stims/PRACTICE/practice_classroom_4.png",
+        "stims/PRACTICE/practice_classroom_4b.png",
+        "stims/PRACTICE/practice_classroom_5.png",
+        "stims/PRACTICE/practice_classroom_7.png"
+      ],
+      question: "선생님이 곧 퇴근할 가능성은 얼마나 높을까요?"
+    };
+
+    imageFiles.push(...practiceItem.images);
+
+    const practiceTimeline = [];
+
+    addControlItem(practiceItem, 0, practiceTimeline, true);
+    timeline.splice(5, 0, ...practiceTimeline);
+
+
+    if (DEBUG_MODE) {
+      timeline.splice(1, 0, debugTrial);
+    }
+
+    // Experiment end
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "",
+      choices: "NO_KEYS",
+      trial_duration: 1,
+      data: {phase: "experiment_end"},
+      on_finish: function(data) {
+        data.total_experiment_time_ms =
+          performance.now() - experiment_start_time;
+        data.total_experiment_time_min =
+          data.total_experiment_time_ms / 60000;
+        experimentCompleted = true;
+        data.experiment_completed = true;
+      }
+    });
+
+    // Payment
+    // const payment_contact = {
+    //   type: jsPsychSurveyHtmlForm,
+    //   preamble: `
+    //     <div style="max-width:900px; margin:auto; text-align:center;">
+    //       <h3>사례비 지급을 위한 계좌 정보</h3>
+    //       <p>연구 참여 사례비를 보내드리기 위해 계좌 정보를 수집하고 있습니다. 아래에 정보를 입력해 주세요.</p>
+    //     </div>
+    //   `,
+    //   html: `
+    //     <div style="max-width:700px; margin:30px auto; text-align:center;">
+    //       <p><strong>예금주명</strong></p>
+    //       <input type="text" name="account_holder" placeholder="홍길동" required style="width:200px;padding:10px;font-size:18px;text-align:center;">
+
+    //       <p><strong>은행</strong></p>
+    //       <input type="text" name="bank_name" placeholder="우리" required style="width:200px;padding:10px;font-size:18px;text-align:center;">
+
+    //       <p><strong>계좌번호</strong></p>
+    //       <input type="text" name="account_number" placeholder="1002-012-567890" required style="width:220px;padding:10px;font-size:18px;text-align:center;">
+
+    //       <p><strong>연락처</strong></p>
+    //       <input type="text" name="contact" placeholder="010-1234-5678" required style="width:220px;padding:10px;font-size:18px;text-align:center;">
+
+    //       <p style="font-size:15px; color:#64748b;">
+    //         입력하신 정보는 사례비 지급 외의 용도로 사용되지 않으며, 지급이 완료된 후 즉시 폐기됩니다.
+    //       </p>
+    //     </div>
+    //   `,
+    //   button_label: "제출",
+    //   data: {
+    //     phase: "payment_contact",
+    //     subject_id: subject_id
+    //   },
+    //   on_finish: function(data) {
+    //     data.account_holder = data.response.account_holder.trim();
+    //     data.bank_name = data.response.bank_name.trim();
+    //     data.account_number = data.response.account_number.trim();
+    //     data.contact = data.response.contact.trim();
+    //   }
+    // };
+
+    // timeline.push(payment_contact);
+
+    // Save
+    // const filename = `exp3_${subject_id}.csv`;
+    // //////////////////////CANNOT USE OSF/////////////////
+    // const save_data = {
+    //   type: jsPsychPipe,
+    //   action: "save",
+    //   experiment_id: DATAPIPE_EXPERIMENT_ID,
+    //   filename: filename,
+    //   data_string: () => "\uFEFF" + jsPsych.data.get().csv(),
+    //   wait_message: `
+    //     <p>응답을 저장하고 있습니다.<br>
+    //     창을 닫지 마시고 잠시만 기다려 주세요.</p>
+    //   `
+    // };
+
+    // timeline.push(save_data);
+   
+    // LOCAL DEBUG: DOWNLOAD CSV
+    function downloadLocalCSV() {
+      const csv = "\uFEFF" + jsPsych.data.get().csv();
+      const blob =
+        new Blob([csv], {type: "text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `exp3_${subject_id}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    const local_download = {
+      type: jsPsychHtmlButtonResponse,
+      record_data: false,
+      stimulus: `
+        <div class="saving-box">
+          <h2>
+            Local test mode
+          </h2>
+        </div>
+      `,
+      choices: ["CSV 다운로드"],
+      on_finish:
+        function() {downloadLocalCSV();}
+    };
+
+    if (LOCAL_DEBUG) {timeline.push(local_download);}
+
+    // Completion
+    // timeline.push({
+    //   type: jsPsychHtmlKeyboardResponse,
+    //   stimulus: `
+    //     <div class="completion-box">
+    //       <h2>응답이 저장되었습니다.</h2>
+    //       <p>이제 창을 닫으셔도 됩니다.</p>
+    //       <h3>참여해 주셔서 감사합니다!</h3>
+    //     </div>
+    //     <p>연구 관련 문의가 있으시면, 연구 담당자 홍준선 (junseonh@stanford.edu)에게 연락해 주시기 바랍니다.</p>
+    //   `,
+    //   choices: "NO_KEYS",
+    //   data: {phase: "completion"}
+    // });
+
+    jsPsych.run(timeline);
+    </script>
+</body>
+</html>
