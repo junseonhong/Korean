@@ -422,6 +422,19 @@
       }
     }
 
+
+    /* Prevent double-tap zoom on mobile */
+    html {
+      touch-action: manipulation;
+    }
+
+    .jspsych-btn,
+    button,
+    input[type="range"] {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
   </style>
 
   </head>
